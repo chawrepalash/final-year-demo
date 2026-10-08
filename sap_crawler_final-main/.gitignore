@@ -1,2 +1,6 @@
 docker-compose.yml
 sources.txt
+target/
+data/
+*.iml
+.idea/

@@ -60,6 +60,15 @@ public class SapServiceRegistry {
                 Bill.class,
                 "Retrieves bills and billing line items from SAP Subscription Billing API"
         ));
+
+        // Register SAP Subscription Billing - Subscriptions Service (Dynamic registration)
+        registerDynamic(
+                "subscriptions",
+                "SAP Subscription Billing - Subscriptions",
+                "https://sandbox.api.sap.com/subscriptionbilling/api/subscription/v1/subscriptions",
+                "projectsap.sap.subscription.model.Subscription",
+                "Manages customer subscriptions and contract lifecycles from SAP Subscription Billing API"
+        );
     }
 
     /**
@@ -67,6 +76,22 @@ public class SapServiceRegistry {
      */
     public static <T> void register(ServiceDescriptor<T> descriptor) {
         REGISTRY.put(descriptor.getServiceId().toLowerCase(), descriptor);
+    }
+
+    /**
+     * Dynamically registers a service by loading the POJO class name dynamically via Class.forName.
+     */
+    @SuppressWarnings("unchecked")
+    public static boolean registerDynamic(String serviceId, String displayName, String defaultEndpoint, String pojoClassName, String description) {
+        try {
+            Class<?> clazz = Class.forName(pojoClassName);
+            register(new ServiceDescriptor(serviceId, displayName, defaultEndpoint, clazz, description));
+            System.out.println("[Registry] Dynamically registered service '" + serviceId + "' with POJO " + pojoClassName);
+            return true;
+        } catch (ClassNotFoundException e) {
+            System.err.println("[Registry] Could not dynamically load POJO class: " + pojoClassName);
+            return false;
+        }
     }
 
     /**

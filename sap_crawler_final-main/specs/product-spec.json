@@ -1,0 +1,98 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "SAP Product Service API",
+    "version" : "1.0.0",
+    "description" : "Auto-generated OpenAPI 3.0 specification for SAP product"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "ProductMetadata" : {
+        "type" : "object",
+        "properties" : {
+          "changedAt" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ProductMarketsItem" : {
+        "type" : "object",
+        "properties" : {
+          "marketId" : {
+            "type" : "string"
+          },
+          "active" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "ProductMixins" : {
+        "type" : "object",
+        "properties" : { }
+      },
+      "Product" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "soldElectronically" : {
+            "type" : "boolean"
+          },
+          "published" : {
+            "type" : "boolean"
+          },
+          "productType" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "integer"
+          },
+          "metadata" : {
+            "$ref" : "#/components/schemas/ProductMetadata"
+          },
+          "markets" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProductMarketsItem"
+            }
+          },
+          "customReferences" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "mixins" : {
+            "$ref" : "#/components/schemas/ProductMixins"
+          },
+          "names" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "descriptions" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,355 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "SAP Subscription Service API",
+    "version" : "1.0.0",
+    "description" : "Auto-generated OpenAPI 3.0 specification for SAP subscription"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "SubscriptionMetaData" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "integer"
+          }
+        }
+      },
+      "SubscriptionSubscriptionProfile" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "replicateSubscriptionsToProviderContract" : {
+            "type" : "boolean"
+          },
+          "requireContractAccount" : {
+            "type" : "boolean"
+          },
+          "forecastTypeId" : {
+            "type" : "string"
+          },
+          "activateUtilitiesExtension" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "SubscriptionCustomer" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SubscriptionPayer" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SubscriptionShipTo" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SubscriptionBillTo" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SubscriptionMarket" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "timeZone" : {
+            "type" : "string"
+          },
+          "currency" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SubscriptionCancellationPolicy" : {
+        "type" : "object",
+        "properties" : {
+          "allowMidBillCycleExpiration" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "SubscriptionSnapshotsItemItemsItemProduct" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "configuration" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SubscriptionSnapshotsItemItemsItemRatePlan" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "source" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SubscriptionSnapshotsItemItemsItemPricing" : {
+        "type" : "object",
+        "properties" : {
+          "pricingParameters" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "overridableFields" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "SubscriptionSnapshotsItemItemsItem" : {
+        "type" : "object",
+        "properties" : {
+          "itemId" : {
+            "type" : "string"
+          },
+          "lineNumber" : {
+            "type" : "string"
+          },
+          "product" : {
+            "$ref" : "#/components/schemas/SubscriptionSnapshotsItemItemsItemProduct"
+          },
+          "subscriptionParameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem"
+            }
+          },
+          "crossBillingCycleAggregations" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "technicalResources" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "subscriptionType" : {
+            "type" : "string"
+          },
+          "createRating" : {
+            "type" : "boolean"
+          },
+          "createBill" : {
+            "type" : "boolean"
+          },
+          "createInvoice" : {
+            "type" : "boolean"
+          },
+          "ratePlan" : {
+            "$ref" : "#/components/schemas/SubscriptionSnapshotsItemItemsItemRatePlan"
+          },
+          "pricing" : {
+            "$ref" : "#/components/schemas/SubscriptionSnapshotsItemItemsItemPricing"
+          },
+          "customReferences" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "externalObjectReferences" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "providerContractItems" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          }
+        }
+      },
+      "SubscriptionSnapshotsItem" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "effectiveDate" : {
+            "type" : "string"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SubscriptionSnapshotsItemItemsItem"
+            }
+          },
+          "createdAt" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Subscription" : {
+        "type" : "object",
+        "properties" : {
+          "metaData" : {
+            "$ref" : "#/components/schemas/SubscriptionMetaData"
+          },
+          "subscriptionDocumentId" : {
+            "type" : "string"
+          },
+          "subscriptionId" : {
+            "type" : "string"
+          },
+          "subscriptionProfile" : {
+            "$ref" : "#/components/schemas/SubscriptionSubscriptionProfile"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "customer" : {
+            "$ref" : "#/components/schemas/SubscriptionCustomer"
+          },
+          "payer" : {
+            "$ref" : "#/components/schemas/SubscriptionPayer"
+          },
+          "shipTo" : {
+            "$ref" : "#/components/schemas/SubscriptionShipTo"
+          },
+          "billTo" : {
+            "$ref" : "#/components/schemas/SubscriptionBillTo"
+          },
+          "market" : {
+            "$ref" : "#/components/schemas/SubscriptionMarket"
+          },
+          "currency" : {
+            "type" : "string"
+          },
+          "subscriptionTimeZone" : {
+            "type" : "string"
+          },
+          "validFrom" : {
+            "type" : "string"
+          },
+          "billingProfileId" : {
+            "type" : "string"
+          },
+          "billingCycle" : {
+            "type" : "string"
+          },
+          "nextScheduledBillingDate" : {
+            "type" : "string"
+          },
+          "billingCycleReferenceDate" : {
+            "type" : "string"
+          },
+          "cancellationPolicy" : {
+            "$ref" : "#/components/schemas/SubscriptionCancellationPolicy"
+          },
+          "canceledWithOverruledTerms" : {
+            "type" : "boolean"
+          },
+          "pauseSchedule" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "withReferenceToPricingScheme" : {
+            "type" : "boolean"
+          },
+          "customReferences" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "externalObjectReferences" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "notificationSettings" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          },
+          "isPending" : {
+            "type" : "boolean"
+          },
+          "isFailed" : {
+            "type" : "boolean"
+          },
+          "isRejected" : {
+            "type" : "boolean"
+          },
+          "createdAt" : {
+            "type" : "string"
+          },
+          "changedAt" : {
+            "type" : "string"
+          },
+          "documentNumber" : {
+            "type" : "integer"
+          },
+          "snapshots" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SubscriptionSnapshotsItem"
+            }
+          }
+        }
+      }
+    }
+  }
+}

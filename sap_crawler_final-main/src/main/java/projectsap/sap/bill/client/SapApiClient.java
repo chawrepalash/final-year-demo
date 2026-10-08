@@ -28,7 +28,19 @@ public class SapApiClient {
      * @throws ParseException If response body parsing fails.
      */
     public static String fetchBillsFromSAP() throws IOException, ParseException {
-        System.out.println("[SapApiClient] Initializing Apache HttpClient 5 request to SAP...");
+        return fetchFromUrl(API_URL);
+    }
+
+    /**
+     * Universal fetcher: Fetches JSON data from any SAP endpoint using Apache HttpClient 5 with APIKey.
+     *
+     * @param url SAP API endpoint URL.
+     * @return Raw JSON response body.
+     * @throws IOException    If network or I/O error occurs.
+     * @throws ParseException If response body parsing fails.
+     */
+    public static String fetchFromUrl(String url) throws IOException, ParseException {
+        System.out.println("[SapApiClient] Initializing Apache HttpClient 5 request to: " + url);
 
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectTimeout(Timeout.ofSeconds(10))
@@ -39,7 +51,7 @@ public class SapApiClient {
                 .setDefaultRequestConfig(requestConfig)
                 .build()) {
 
-            HttpGet request = new HttpGet(API_URL);
+            HttpGet request = new HttpGet(url);
             request.addHeader("APIKey", API_KEY);
             request.addHeader("Accept", "application/json");
 
@@ -48,8 +60,8 @@ public class SapApiClient {
                 HttpEntity entity = response.getEntity();
                 String responseBody = entity != null ? EntityUtils.toString(entity) : "";
 
-                if (statusCode == 200) {
-                    System.out.println("[SapApiClient] Successfully received HTTP 200 response from SAP API.");
+                if (statusCode >= 200 && statusCode < 300) {
+                    System.out.println("[SapApiClient] Received HTTP " + statusCode + " response (" + responseBody.length() + " bytes).");
                     return responseBody;
                 } else {
                     System.err.println("[SapApiClient] API returned HTTP error " + statusCode + ": " + responseBody);

@@ -173,11 +173,29 @@ public class DatabaseManager {
             )
             """;
 
+        String createSubscriptionsTable = """
+            CREATE TABLE IF NOT EXISTS subscriptions (
+                id                 VARCHAR(255) PRIMARY KEY,
+                subscription_id    VARCHAR(255),
+                status             VARCHAR(100),
+                customer_id        VARCHAR(255),
+                market_id          VARCHAR(100),
+                currency           VARCHAR(10),
+                valid_from         VARCHAR(100),
+                valid_until        VARCHAR(100),
+                billing_profile_id VARCHAR(100),
+                raw_json           TEXT,
+                fetched_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """;
+
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(createBillsTable);
             stmt.execute(createFetchLogTable);
-            System.out.println("[DB] Database tables ('bills', 'fetch_log') verified/initialized in " + dbEngineName + ".");
+            stmt.execute(createSubscriptionsTable);
+            System.out.println("[DB] Database tables ('bills', 'subscriptions', 'fetch_log') verified/initialized in " + dbEngineName + ".");
         }
     }
 
