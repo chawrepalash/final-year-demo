@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAP Billing Dashboard — Subscription Billing Analytics</title>
+    <meta name="description" content="Real-time SAP Subscription Billing dashboard with analytics, bill management, and sync capabilities.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/frontend/styles.css">
+</head>
+<body>
+
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                    <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+            </div>
+            <div class="brand-text">
+                <span class="brand-title">SAP Bills</span>
+                <span class="brand-sub">Subscription Billing</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-view="dashboard" id="nav-dashboard">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-view="bills" id="nav-bills">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                </svg>
+                <span>All Bills</span>
+            </a>
+            <a href="#" class="nav-item" data-view="sync" id="nav-sync">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+                <span>Sync Data</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sync-status" id="syncStatusIndicator">
+                <div class="status-dot"></div>
+                <span class="status-text">Checking...</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══════ MAIN CONTENT ═══════ -->
+    <main class="main-content">
+
+        <!-- ── Header ────────────────────────────────── -->
+        <header class="top-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+                <div class="breadcrumb" id="breadcrumb">
+                    <span class="crumb">Home</span>
+                    <span class="crumb-sep">/</span>
+                    <span class="crumb active">Dashboard</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="last-sync-info" id="lastSyncInfo">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span id="lastSyncText">Never synced</span>
+                </div>
+                <button class="btn-sync" id="headerSyncBtn" title="Sync from SAP">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                    </svg>
+                    <span>Sync</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ── Content Area ──────────────────────────── -->
+        <div class="content-area">
+
+            <!-- ════ DASHBOARD VIEW ════ -->
+            <section class="view-section active" id="view-dashboard">
+
+                <!-- Stats Cards -->
+                <div class="stats-row" id="statsRow">
+                    <div class="stat-card" id="stat-total">
+                        <div class="stat-icon blue">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Bills</span>
+                            <span class="stat-value" id="statTotalBills">—</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" id="stat-open">
+                        <div class="stat-icon amber">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Open</span>
+                            <span class="stat-value" id="statOpen">—</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" id="stat-closed">
+                        <div class="stat-icon green">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Closed</span>
+                            <span class="stat-value" id="statClosed">—</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" id="stat-revenue">
+                        <div class="stat-icon purple">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Gross</span>
+                            <span class="stat-value" id="statRevenue">—</span>
+                        </div>
+                    </div>
+                    <div class="stat-card" id="stat-currencies">
+                        <div class="stat-icon teal">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Currencies</span>
+                            <span class="stat-value" id="statCurrencies">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Bill Status Distribution</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Billing Type Breakdown</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Currency Distribution</h3>
+                        </div>
+                        <div class="chart-body">
+                            <canvas id="currencyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Bills Preview -->
+                <div class="recent-bills-card">
+                    <div class="card-header">
+                        <h3>Recent Bills</h3>
+                        <button class="btn-outline" id="viewAllBillsBtn">View All →</button>
+                    </div>
+                    <div class="table-wrapper" id="recentBillsTable">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <span>Loading bills...</span>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ════ BILLS VIEW ════ -->
+            <section class="view-section" id="view-bills">
+
+                <!-- Filters Bar -->
+                <div class="filters-bar">
+                    <div class="search-wrapper">
+                        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input type="text" class="search-input" id="billSearchInput"
+                               placeholder="Search bills by ID, document number, currency...">
+                    </div>
+                    <div class="filter-group">
+                        <select class="filter-select" id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="OPEN">Open</option>
+                            <option value="CLOSING">Closing</option>
+                            <option value="CLOSED">Closed</option>
+                        </select>
+                        <select class="filter-select" id="filterType">
+                            <option value="">All Types</option>
+                            <option value="CHARGE">Charge</option>
+                            <option value="CREDIT">Credit</option>
+                        </select>
+                        <select class="filter-select" id="filterCurrency">
+                            <option value="">All Currencies</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Bills Table -->
+                <div class="bills-table-card">
+                    <div class="table-wrapper" id="billsTableContainer">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <span>Loading bills...</span>
+                        </div>
+                    </div>
+                    <div class="table-footer" id="tableFooter" style="display:none;">
+                        <span class="result-count" id="resultCount">0 bills</span>
+                        <div class="pagination" id="pagination"></div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ════ SYNC VIEW ════ -->
+            <section class="view-section" id="view-sync">
+                <div class="sync-panel">
+                    <div class="sync-hero">
+                        <div class="sync-icon-lg" id="syncIconLg">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                            </svg>
+                        </div>
+                        <h2>Sync from SAP</h2>
+                        <p>Fetch the latest billing data from SAP Subscription Billing API and store it in your local database.</p>
+                        <button class="btn-primary-lg" id="syncNowBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                            </svg>
+                            Sync Now
+                        </button>
+                        <div class="sync-result" id="syncResult" style="display:none;"></div>
+                    </div>
+
+                    <!-- Fetch History -->
+                    <div class="fetch-history-card">
+                        <h3>Sync History</h3>
+                        <div id="fetchHistoryContainer">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <span>Loading history...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ═══════ BILL DETAIL PANEL ═══════ -->
+    <div class="detail-overlay" id="detailOverlay"></div>
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+            <h2 id="detailTitle">Bill Details</h2>
+            <button class="detail-close" id="detailClose" aria-label="Close details">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="detail-body" id="detailBody">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- App Script -->
+    <script src="/frontend/app.js"></script>
+
+</body>
+</html>

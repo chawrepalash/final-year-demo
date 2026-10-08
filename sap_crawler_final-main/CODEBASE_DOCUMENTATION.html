@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAP Subscription Billing System - Codebase Documentation</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- PrismJS Theme for beautiful code blocks -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet" />
+    
+    <!-- FontAwesome for beautiful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --accent-color: #2563eb;
+            --accent-hover: #1d4ed8;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --code-bg: #1e293b;
+            --code-text: #f8fafc;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --transition: all 0.25s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --sidebar-bg: #020617;
+            --text-color: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-color: #3b82f6;
+            --accent-hover: #60a5fa;
+            --border-color: #1e293b;
+            --card-bg: #1e293b;
+            --code-bg: #020617;
+            --code-text: #f1f5f9;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: var(--transition);
+            display: flex;
+        }
+
+        /* Scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Header / Navbar */
+        header {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 280px;
+            height: 64px;
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 100;
+            transition: var(--transition);
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 200;
+            transition: var(--transition);
+        }
+
+        .sidebar-brand {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-brand i {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+
+        .sidebar-brand h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: var(--text-color);
+        }
+
+        .search-container {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 1.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.625rem 1rem 0.625rem 2.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 0.875rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .sidebar-toc {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem 1rem;
+        }
+
+        /* Style generated Table of Contents */
+        .toc {
+            list-style: none;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 1rem;
+            margin-top: 0.25rem;
+            margin-bottom: 0.5rem;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .toc li {
+            margin-bottom: 0.35rem;
+        }
+
+        .toc a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: var(--transition);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .toc a:hover {
+            color: var(--accent-color);
+            background-color: var(--bg-color);
+        }
+
+        .toc li.active > a {
+            color: var(--accent-color);
+            background-color: rgba(37, 99, 235, 0.1);
+            font-weight: 600;
+        }
+
+        /* Content area layout */
+        .main-content {
+            margin-left: 280px;
+            margin-top: 64px;
+            width: calc(100% - 280px);
+            padding: 3rem 4rem;
+            display: flex;
+            justify-content: center;
+            min-height: calc(100vh - 64px);
+        }
+
+        .content-container {
+            max-width: 850px;
+            width: 100%;
+        }
+
+        /* Floating Actions in Header */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background-color: var(--sidebar-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+            color: white;
+        }
+
+        /* Markdown Typography & Styling */
+        .markdown-body h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            letter-spacing: -0.03em;
+        }
+
+        .markdown-body h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.65rem;
+            font-weight: 600;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.4rem;
+            letter-spacing: -0.02em;
+        }
+
+        .markdown-body h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .markdown-body h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .markdown-body p {
+            margin-bottom: 1.25rem;
+            color: var(--text-color);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .markdown-body hr {
+            height: 1px;
+            background-color: var(--border-color);
+            border: none;
+            margin: 2.5rem 0;
+        }
+
+        /* Lists */
+        .markdown-body ul, .markdown-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .markdown-body li {
+            margin-bottom: 0.5rem;
+        }
+
+        .markdown-body li > ul, .markdown-body li > ol {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        /* Blockquotes / Alerts */
+        .markdown-body blockquote {
+            padding: 0.75rem 1.25rem;
+            border-left: 4px solid var(--accent-color);
+            background-color: rgba(37, 99, 235, 0.05);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.25rem;
+            color: var(--text-color);
+            font-style: italic;
+        }
+
+        /* Inline Code */
+        .markdown-body :not(pre) > code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            padding: 0.2rem 0.4rem;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            color: var(--accent-color);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        /* Fenced Code Blocks */
+        .markdown-body pre {
+            position: relative;
+            background-color: var(--code-bg) !important;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem !important;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .markdown-body pre code {
+            font-family: 'Fira Code', monospace !important;
+            font-size: 0.875rem !important;
+            color: var(--code-text) !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        /* Copy Button for Code Blocks */
+        .copy-code-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .markdown-body pre:hover .copy-code-btn {
+            opacity: 1;
+        }
+
+        .copy-code-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Tables styling */
+        .markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.925rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .markdown-body th, .markdown-body td {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .markdown-body th {
+            background-color: var(--border-color);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .markdown-body tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.015);
+        }
+
+        [data-theme="dark"] .markdown-body tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.015);
+        }
+
+        /* Links */
+        .markdown-body a {
+            color: var(--accent-color);
+            text-decoration: none;
+            border-bottom: 1px dotted transparent;
+            transition: var(--transition);
+        }
+
+        .markdown-body a:hover {
+            border-bottom-color: var(--accent-color);
+        }
+
+        /* Architecture ASCII blocks styling */
+        .markdown-body pre code.language-none,
+        .markdown-body pre code.language-text {
+            color: #38bdf8 !important; /* light blue for ASCII diagrams */
+            line-height: 1.3;
+        }
+
+        /* Toggle Menu for Mobile */
+        .hamburger {
+            display: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 992px) {
+            header {
+                left: 0;
+            }
+            .sidebar {
+                left: -280px;
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 2rem;
+            }
+            .hamburger {
+                display: block;
+            }
+        }
+
+        /* Print Specific Styles - Optimized for PDF generation */
+        @media print {
+            body {
+                background-color: white !important;
+                color: black !important;
+                display: block !important;
+            }
+            
+            header, .sidebar, .hamburger, .copy-code-btn, .header-actions {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                margin-top: 0 !important;
+                width: 100% !important;
+                padding: 0 !important;
+                min-height: auto !important;
+            }
+            
+            .content-container {
+                max-width: 100% !important;
+            }
+            
+            .markdown-body h1, .markdown-body h2 {
+                border-bottom-color: #ccc !important;
+            }
+            
+            .markdown-body h1, .markdown-body h2, .markdown-body h3 {
+                page-break-after: avoid;
+            }
+            
+            pre, blockquote, table, tr, img {
+                page-break-inside: avoid;
+            }
+            
+            .markdown-body pre {
+                background-color: #f1f5f9 !important;
+                border-color: #cbd5e1 !important;
+                color: black !important;
+            }
+            
+            .markdown-body pre code {
+                color: black !important;
+            }
+            
+            .markdown-body :not(pre) > code {
+                background-color: #f1f5f9 !important;
+                color: #b91c1c !important; /* Red color for print inline codes */
+            }
+            
+            a {
+                text-decoration: underline;
+                color: #2563eb !important;
+            }
+            
+            a[href^="http"]::after {
+                content: " (" attr(href) ")";
+                font-size: 0.8rem;
+                color: #475569;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <!-- Sidebar TOC -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-book-open-reader"></i>
+            <h1>SAP Bill Crawler Docs</h1>
+        </div>
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search documentation...">
+        </div>
+        <nav class="sidebar-toc">
+            <div class="toc">
+<ul>
+<li><a href="#sap-subscription-billing-system-complete-codebase-documentation">SAP Subscription Billing System - Complete Codebase Documentation</a><ul>
+<li><a href="#table-of-contents">📋 Table of Contents</a></li>
+<li><a href="#project-overview">🎯 Project Overview</a><ul>
+<li><a href="#purpose">Purpose</a></li>
+<li><a href="#what-it-does">What It Does</a></li>
+<li><a href="#target-users">Target Users</a></li>
+<li><a href="#use-cases">Use Cases</a></li>
+</ul>
+</li>
+<li><a href="#architecture-design">🏗️ Architecture &amp; Design</a><ul>
+<li><a href="#high-level-architecture">High-Level Architecture</a></li>
+<li><a href="#design-patterns-used">Design Patterns Used</a></li>
+<li><a href="#component-interaction-flow">Component Interaction Flow</a></li>
+</ul>
+</li>
+<li><a href="#technology-stack">🛠️ Technology Stack</a><ul>
+<li><a href="#core-technologies">Core Technologies</a></li>
+<li><a href="#external-libraries-jars">External Libraries &amp; JARs</a></li>
+<li><a href="#external-apis">External APIs</a></li>
+</ul>
+</li>
+<li><a href="#directory-structure">📁 Directory Structure</a><ul>
+<li><a href="#key-directory-explanations">Key Directory Explanations</a><ul>
+<li><a href="#newonesrcmainjavaprojectsapsapbillmain">/newone/src/main/java/projectsap/sap/bill/main/</a></li>
+<li><a href="#newonesrcmainjavaprojectsapsapbillmodel">/newone/src/main/java/projectsap/sap/bill/model/</a></li>
+<li><a href="#toolsbillv2_apisyaml">/tools/BillV2_APIs.yaml</a></li>
+<li><a href="#toolsgenerated">/tools/generated/</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#core-components">🔧 Core Components</a><ul>
+<li><a href="#1-billserverjava-main-application">1. BillServer.java - Main Application</a></li>
+<li><a href="#2-testbillapijava-testing-utility">2. TestBillAPI.java - Testing Utility</a></li>
+<li><a href="#3-model-classes-80-classes-data-representation">3. Model Classes (80+ classes) - Data Representation</a><ul>
+<li><a href="#billjava">Bill.java</a></li>
+<li><a href="#billitemjava">BillItem.java</a></li>
+<li><a href="#chargejava">Charge.java</a></li>
+<li><a href="#creditjava">Credit.java</a></li>
+<li><a href="#customerjava">Customer.java</a></li>
+<li><a href="#marketjava">Market.java</a></li>
+<li><a href="#paymentjava">Payment.java</a></li>
+<li><a href="#subscriptionjava">Subscription.java</a></li>
+<li><a href="#productjava">Product.java</a></li>
+<li><a href="#additional-models">Additional Models</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#api-integration">🔌 API Integration</a><ul>
+<li><a href="#sap-subscription-billing-rest-api-v2">SAP Subscription Billing REST API v2</a></li>
+</ul>
+</li>
+<li><a href="#data-models">📊 Data Models</a><ul>
+<li><a href="#model-hierarchy-relationships">Model Hierarchy &amp; Relationships</a></li>
+<li><a href="#key-model-features">Key Model Features</a></li>
+</ul>
+</li>
+<li><a href="#main-classes">🎯 Main Classes</a><ul>
+<li><a href="#class-billserver">Class: BillServer</a></li>
+<li><a href="#class-testbillapi">Class: TestBillAPI</a></li>
+</ul>
+</li>
+<li><a href="#how-it-works">🚀 How It Works</a><ul>
+<li><a href="#application-flow">Application Flow</a><ul>
+<li><a href="#1-server-startup">1. Server Startup</a></li>
+<li><a href="#2-dashboard-request-httplocalhost8080">2. Dashboard Request (http://localhost:8080/)</a></li>
+<li><a href="#3-api-data-request-bills-endpoint">3. API Data Request (/bills endpoint)</a></li>
+<li><a href="#4-json-deserialization-in-testbillapi">4. JSON Deserialization (In TestBillAPI)</a></li>
+</ul>
+</li>
+<li><a href="#requestresponse-flow">Request/Response Flow</a></li>
+</ul>
+</li>
+<li><a href="#running-the-application">🏃 Running the Application</a><ul>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#compilation">Compilation</a></li>
+<li><a href="#running-billserver">Running BillServer</a></li>
+<li><a href="#running-testbillapi">Running TestBillAPI</a></li>
+<li><a href="#stopping-the-server">Stopping the Server</a></li>
+</ul>
+</li>
+<li><a href="#dependencies-libraries">📦 Dependencies &amp; Libraries</a><ul>
+<li><a href="#jackson-library-ecosystem">Jackson Library Ecosystem</a></li>
+<li><a href="#annotation-libraries">Annotation Libraries</a></li>
+<li><a href="#java-built-in-libraries">Java Built-in Libraries</a></li>
+</ul>
+</li>
+<li><a href="#configuration">⚙️ Configuration</a><ul>
+<li><a href="#api-configuration">API Configuration</a></li>
+<li><a href="#server-configuration">Server Configuration</a></li>
+<li><a href="#jackson-configuration">Jackson Configuration</a></li>
+</ul>
+</li>
+<li><a href="#key-concepts">💡 Key Concepts</a><ul>
+<li><a href="#1-bill-invoice-document">1. Bill (Invoice Document)</a></li>
+<li><a href="#2-bill-items">2. Bill Items</a></li>
+<li><a href="#3-charge">3. Charge</a></li>
+<li><a href="#4-market-region">4. Market &amp; Region</a></li>
+<li><a href="#5-payment">5. Payment</a></li>
+<li><a href="#6-closing">6. Closing</a></li>
+<li><a href="#7-event-log">7. Event Log</a></li>
+<li><a href="#8-custom-references">8. Custom References</a></li>
+<li><a href="#9-rate-plan">9. Rate Plan</a></li>
+<li><a href="#10-pricing-element">10. Pricing Element</a></li>
+</ul>
+</li>
+<li><a href="#important-implementation-details">🔍 Important Implementation Details</a><ul>
+<li><a href="#json-deserialization">JSON Deserialization</a></li>
+<li><a href="#http-connection-handling">HTTP Connection Handling</a></li>
+<li><a href="#data-validation">Data Validation</a></li>
+<li><a href="#performance-considerations">Performance Considerations</a></li>
+<li><a href="#security-notes">Security Notes</a></li>
+</ul>
+</li>
+<li><a href="#code-generation-background">📝 Code Generation Background</a><ul>
+<li><a href="#openapi-generator">OpenAPI Generator</a></li>
+<li><a href="#what-was-generated">What Was Generated</a></li>
+<li><a href="#manual-code">Manual Code</a></li>
+</ul>
+</li>
+<li><a href="#troubleshooting">🐛 Troubleshooting</a><ul>
+<li><a href="#issue-port-8080-already-in-use">Issue: Port 8080 Already in Use</a></li>
+<li><a href="#issue-api-key-expired">Issue: API Key Expired</a></li>
+<li><a href="#issue-json-deserialization-fails">Issue: JSON Deserialization Fails</a></li>
+<li><a href="#issue-connection-timeout">Issue: Connection Timeout</a></li>
+</ul>
+</li>
+<li><a href="#related-documentation">📚 Related Documentation</a><ul>
+<li><a href="#external-resources">External Resources</a></li>
+<li><a href="#generated-documentation">Generated Documentation</a></li>
+</ul>
+</li>
+<li><a href="#summary">📋 Summary</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+        </nav>
+    </aside>
+
+    <!-- Main Header -->
+    <header>
+        <div class="hamburger" id="hamburger">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+        <div>
+            <!-- Breadcrumb or space -->
+        </div>
+        <div class="header-actions">
+            <button class="btn" id="themeToggle" title="Toggle Theme">
+                <i class="fa-solid fa-moon"></i> <span>Dark Mode</span>
+            </button>
+            <button class="btn btn-primary" id="printBtn" title="Export / Print to PDF">
+                <i class="fa-solid fa-file-pdf"></i> <span>Export PDF</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="main-content">
+        <div class="content-container">
+            <article class="markdown-body">
+                <h1 id="sap-subscription-billing-system-complete-codebase-documentation">SAP Subscription Billing System - Complete Codebase Documentation</h1>
+<p><strong>Project Name:</strong> SAP Bill Crawler Final<br />
+<strong>Date:</strong> May 15, 2026<br />
+<strong>Language:</strong> Java<br />
+<strong>Framework:</strong> Custom HTTP Server (Java Built-in)<br />
+<strong>API:</strong> SAP Subscription Billing REST API v2  </p>
+<hr />
+<h2 id="table-of-contents">📋 Table of Contents</h2>
+<ol>
+<li><a href="#project-overview">Project Overview</a></li>
+<li><a href="#architecture--design">Architecture &amp; Design</a></li>
+<li><a href="#technology-stack">Technology Stack</a></li>
+<li><a href="#directory-structure">Directory Structure</a></li>
+<li><a href="#core-components">Core Components</a></li>
+<li><a href="#api-integration">API Integration</a></li>
+<li><a href="#data-models">Data Models</a></li>
+<li><a href="#main-classes">Main Classes</a></li>
+<li><a href="#how-it-works">How It Works</a></li>
+<li><a href="#running-the-application">Running the Application</a></li>
+<li><a href="#dependencies--libraries">Dependencies &amp; Libraries</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#key-concepts">Key Concepts</a></li>
+</ol>
+<hr />
+<h2 id="project-overview">🎯 Project Overview</h2>
+<h3 id="purpose">Purpose</h3>
+<p>This project is a <strong>SAP Subscription Billing API Client</strong> that integrates with SAP's Cloud-to-Cash (C2C) platform. It fetches billing data from SAP's sandbox environment and provides a dashboard to visualize bills, charges, credits, and other billing-related information.</p>
+<h3 id="what-it-does">What It Does</h3>
+<ol>
+<li><strong>Fetches Bills</strong>: Connects to SAP's Bills API v2 and retrieves billing documents</li>
+<li><strong>Displays Data</strong>: Serves an interactive HTML dashboard showing bill statistics and data</li>
+<li><strong>Stores Models</strong>: Contains comprehensive Java models representing SAP billing entities</li>
+<li><strong>Handles Payments</strong>: Manages billing information including charges, credits, and settlements</li>
+</ol>
+<h3 id="target-users">Target Users</h3>
+<ul>
+<li>SAP Subscription Billing customers</li>
+<li>Finance/Billing departments</li>
+<li>Integration engineers</li>
+<li>System administrators</li>
+</ul>
+<h3 id="use-cases">Use Cases</h3>
+<ul>
+<li>View all bills from SAP Subscription Billing system</li>
+<li>Monitor billing status (OPEN, CLOSING, CLOSED)</li>
+<li>Track payment information</li>
+<li>Analyze billing patterns and trends</li>
+<li>Integration testing with SAP APIs</li>
+</ul>
+<hr />
+<h2 id="architecture-design">🏗️ Architecture &amp; Design</h2>
+<h3 id="high-level-architecture">High-Level Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                    HTTP CLIENT (Java)                       │
+│  Runs on localhost:8080                                     │
+└────────────┬────────────────────────────────────────────────┘
+             │
+             ├─────────────────────────────┐
+             │                             │
+    ┌────────┴─────────┐         ┌────────┴─────────┐
+    │ Route: /         │         │ Route: /bills    │
+    │ (HTML Dashboard) │         │ (JSON API)       │
+    └──────────────────┘         └────────┬─────────┘
+                                          │
+                                          ▼
+                            ┌─────────────────────────┐
+                            │  fetchBillsFromSAP()    │
+                            │  Makes HTTP GET Request │
+                            └────────┬────────────────┘
+                                     │
+                                     ▼
+                    ┌──────────────────────────────────┐
+                    │ SAP Sandbox API                  │
+                    │ (Bills v2 REST API)              │
+                    │ sandbox.api.sap.com              │
+                    └──────────────────────────────────┘
+</code></pre>
+<h3 id="design-patterns-used">Design Patterns Used</h3>
+<ul>
+<li><strong>HTTP Server Pattern</strong>: Uses Java's built-in <code>HttpServer</code> for lightweight HTTP handling</li>
+<li><strong>Handler Pattern</strong>: Implements <code>HttpHandler</code> interface for route handling</li>
+<li><strong>Serialization Pattern</strong>: Uses Jackson (ObjectMapper) for JSON ↔ Java object conversion</li>
+<li><strong>Model Pattern</strong>: POJO (Plain Old Java Objects) for data representation</li>
+</ul>
+<h3 id="component-interaction-flow">Component Interaction Flow</h3>
+<pre><code>1. Client requests http://localhost:8080
+2. BillServer receives request
+3. Route handler (HttpHandler) processes request
+4. For &quot;/&quot; → serves HTML dashboard
+5. For &quot;/bills&quot; → calls fetchBillsFromSAP()
+6. fetchBillsFromSAP() makes HTTP GET to SAP API
+7. SAP API returns JSON response
+8. Jackson ObjectMapper deserializes JSON to Java objects
+9. Response sent back to client
+10. Client renders dashboard
+</code></pre>
+<hr />
+<h2 id="technology-stack">🛠️ Technology Stack</h2>
+<h3 id="core-technologies">Core Technologies</h3>
+<table>
+<thead>
+<tr>
+<th>Technology</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Java</td>
+<td>JDK (Not specified, likely 11+)</td>
+<td>Programming language</td>
+</tr>
+<tr>
+<td>HTTP Server</td>
+<td>Java Built-in</td>
+<td>Lightweight HTTP server</td>
+</tr>
+<tr>
+<td>Jackson</td>
+<td>(Latest via JAR)</td>
+<td>JSON serialization/deserialization</td>
+</tr>
+</tbody>
+</table>
+<h3 id="external-libraries-jars">External Libraries &amp; JARs</h3>
+<p>Located in <code>/tools/</code> directory:</p>
+<pre><code>jackson-databind.jar          - Core Jackson JSON processing
+jackson-core.jar               - Low-level JSON parsing
+jackson-annotations.jar        - Annotation support
+jackson-jsr310.jar            - Java 8+ time module
+jackson-nullable.jar          - Nullable type handling
+javax-annotation.jar          - Java annotations
+jsr305.jar                    - JSR-305 annotations
+</code></pre>
+<h3 id="external-apis">External APIs</h3>
+<ul>
+<li><strong>SAP Subscription Billing REST API v2</strong> - Provides bill data</li>
+<li>OAuth 2.0 - Authentication (API Key based)</li>
+</ul>
+<hr />
+<h2 id="directory-structure">📁 Directory Structure</h2>
+<pre><code>g:\final_year_proj/
+│
+├── README.md                          # Project README (brief)
+├── sources.txt                        # List of all Java source files
+├── CODEBASE_DOCUMENTATION.md          # THIS FILE
+│
+├── newone/
+│   └── src/main/java/
+│       └── projectsap/sap/bill/
+│           ├── main/
+│           │   ├── BillServer.java           # Main HTTP server &amp; dashboard
+│           │   └── TestBillAPI.java          # API testing utility
+│           │
+│           └── model/                        # Data models (80+ classes)
+│               ├── Bill.java                 # Main invoice document
+│               ├── BillItem.java             # Line items in a bill
+│               ├── Charge.java               # Charges/costs
+│               ├── Credit.java               # Credit notes
+│               ├── Customer.java             # Customer information
+│               ├── Market.java               # Market/region info
+│               ├── Payment.java              # Payment details
+│               ├── CreditCard.java           # Credit card info
+│               ├── Subscription.java         # Subscription reference
+│               ├── Product.java              # Product information
+│               ├── MetaData.java             # Metadata
+│               ├── MonetaryAmount.java       # Currency values
+│               ├── Closing.java              # Closing details
+│               ├── EventLogEntry.java        # Event history
+│               ├── RatePlan.java             # Rate plan information
+│               ├── PricingElement.java       # Pricing details
+│               └── [... 60+ more model classes ...]
+│
+├── tools/
+│   ├── BillV2_APIs.yaml                # OpenAPI/Swagger specification
+│   │
+│   ├── generated/                      # Auto-generated code
+│   │   ├── api/                        # API client classes
+│   │   ├── docs/                       # Generated documentation (80+ MD files)
+│   │   ├── gradle/                     # Gradle build files
+│   │   └── src/                        # Generated source code
+│   │
+│   ├── jackson-*.jar                   # Jackson libraries
+│   ├── javax-annotation.jar            # Javax annotations
+│   ├── jsr305.jar                      # JSR-305 annotations
+│   └── [other dependency JARs]
+│
+└── out/                               # Compiled classes (generated at build time)
+</code></pre>
+<h3 id="key-directory-explanations">Key Directory Explanations</h3>
+<h4 id="newonesrcmainjavaprojectsapsapbillmain"><code>/newone/src/main/java/projectsap/sap/bill/main/</code></h4>
+<ul>
+<li><strong>BillServer.java</strong>: Main entry point - HTTP server with two routes</li>
+<li><strong>TestBillAPI.java</strong>: Standalone test utility to validate API connectivity</li>
+</ul>
+<h4 id="newonesrcmainjavaprojectsapsapbillmodel"><code>/newone/src/main/java/projectsap/sap/bill/model/</code></h4>
+<ul>
+<li>Contains 80+ model classes (POJOs) representing SAP billing entities</li>
+<li>Auto-generated from OpenAPI specification</li>
+<li>Each class represents a specific data structure from the API</li>
+</ul>
+<h4 id="toolsbillv2_apisyaml"><code>/tools/BillV2_APIs.yaml</code></h4>
+<ul>
+<li>OpenAPI 3.0.3 specification file</li>
+<li>Defines all REST endpoints and data models</li>
+<li>Generated these models automatically</li>
+</ul>
+<h4 id="toolsgenerated"><code>/tools/generated/</code></h4>
+<ul>
+<li>Contains auto-generated code from the OpenAPI specification</li>
+<li>Includes API client implementations</li>
+<li>Contains markdown documentation for each model</li>
+</ul>
+<hr />
+<h2 id="core-components">🔧 Core Components</h2>
+<h3 id="1-billserverjava-main-application">1. <strong>BillServer.java</strong> - Main Application</h3>
+<p><strong>Purpose</strong>: HTTP server and dashboard provider</p>
+<p><strong>Key Responsibilities</strong>:
+- Creates HTTP server on port 8080
+- Handles two routes: "/" and "/bills"
+- Fetches data from SAP API
+- Serves interactive HTML dashboard</p>
+<p><strong>Main Methods</strong>:
+- <code>main(String[] args)</code> - Server startup
+- <code>fetchBillsFromSAP()</code> - Makes API call to SAP
+- <code>getDashboardHTML()</code> - Returns HTML dashboard code</p>
+<p><strong>Important Constants</strong>:</p>
+<pre><code class="language-java">private static final String API_KEY = &quot;wITmrAEUGLzlYWC2my5UOKunJinBNwe4&quot;;
+private static final String API_URL = &quot;https://sandbox.api.sap.com/subscriptionbilling/api/bill/v2/bills?pageNumber=1&amp;pageSize=40&amp;%24count=true&quot;;
+</code></pre>
+<p><strong>Routes</strong>:
+| Route | Method | Returns | Purpose |
+|-------|--------|---------|---------|
+| <code>/</code> | GET | HTML | Interactive dashboard |
+| <code>/bills</code> | GET | JSON | Raw bill data from API |</p>
+<h3 id="2-testbillapijava-testing-utility">2. <strong>TestBillAPI.java</strong> - Testing Utility</h3>
+<p><strong>Purpose</strong>: Standalone utility to test API connectivity and data deserialization</p>
+<p><strong>Key Responsibilities</strong>:
+- Makes direct HTTP request to SAP API
+- Deserializes JSON response to Bill POJOs
+- Prints bill information to console
+- Useful for debugging and validation</p>
+<p><strong>Main Steps in Execution</strong>:
+1. Make HTTP GET request to SAP API
+2. Read response based on HTTP status code
+3. Deserialize JSON to Bill objects using Jackson
+4. Print bill details to console</p>
+<h3 id="3-model-classes-80-classes-data-representation">3. <strong>Model Classes (80+ classes)</strong> - Data Representation</h3>
+<p><strong>Auto-Generated</strong>: All model classes are generated from OpenAPI specification</p>
+<p><strong>Key Model Files</strong>:</p>
+<h4 id="billjava">Bill.java</h4>
+<ul>
+<li>Represents a billing document</li>
+<li>Contains reference to items, charges, credits</li>
+<li>Has status (OPEN, CLOSING, CLOSED)</li>
+<li>Properties: id, documentNumber, billingDate, dueDate, currency, amount, etc.</li>
+</ul>
+<h4 id="billitemjava">BillItem.java</h4>
+<ul>
+<li>Represents a line item on a bill</li>
+<li>Contains charges or credits</li>
+<li>References subscription and product</li>
+<li>Contains quantities and pricing details</li>
+</ul>
+<h4 id="chargejava">Charge.java</h4>
+<ul>
+<li>Represents a charge (cost) on a bill</li>
+<li>Contains quantity, rating type, pricing elements</li>
+<li>Has monetary amounts (net/gross)</li>
+<li>Can be recurring, one-time, or usage-based</li>
+</ul>
+<h4 id="creditjava">Credit.java</h4>
+<ul>
+<li>Represents a credit note</li>
+<li>Inverse of a charge</li>
+<li>Reduces overall bill amount</li>
+</ul>
+<h4 id="customerjava">Customer.java</h4>
+<ul>
+<li>Contains customer information</li>
+<li>Properties: id, type (INDIVIDUAL/CORPORATE), country</li>
+</ul>
+<h4 id="marketjava">Market.java</h4>
+<ul>
+<li>Represents market/regional information</li>
+<li>Currency information</li>
+<li>Market-specific settings</li>
+</ul>
+<h4 id="paymentjava">Payment.java</h4>
+<ul>
+<li>Contains payment information</li>
+<li>Payment method and status</li>
+<li>Associated dates</li>
+</ul>
+<h4 id="subscriptionjava">Subscription.java</h4>
+<ul>
+<li>Reference to subscription</li>
+<li>Contains subscription ID and document number</li>
+<li>Links bill to subscription</li>
+</ul>
+<h4 id="productjava">Product.java</h4>
+<ul>
+<li>Product information</li>
+<li>Name and product ID</li>
+<li>Rate plan references</li>
+</ul>
+<h4 id="additional-models">Additional Models</h4>
+<ul>
+<li><strong>MonetaryAmount</strong>: Financial values with currency</li>
+<li><strong>MetaData</strong>: Creation/modification timestamps and user info</li>
+<li><strong>Closing</strong>: Bill closing information</li>
+<li><strong>EventLogEntry</strong>: History of bill state changes</li>
+<li><strong>RatePlan</strong>: Pricing details</li>
+<li><strong>PricingElement</strong>: Detailed pricing breakdown</li>
+<li><strong>UsageRecord</strong>: Usage-based charge details</li>
+<li><strong>CreditCard</strong>: Credit card settlement information</li>
+<li><strong>CustomReference</strong>: Custom fields/extensions</li>
+<li><strong>And 60+ more specialized models...</strong></li>
+</ul>
+<hr />
+<h2 id="api-integration">🔌 API Integration</h2>
+<h3 id="sap-subscription-billing-rest-api-v2">SAP Subscription Billing REST API v2</h3>
+<p><strong>Base URL</strong> (Sandbox):</p>
+<pre><code>https://sandbox.api.sap.com/subscriptionbilling/api/bill/v2
+</code></pre>
+<p><strong>Authentication</strong>:
+- Method: API Key (in header)
+- Header Name: <code>APIKey</code>
+- Header Value: <code>wITmrAEUGLzlYWC2my5UOKunJinBNwe4</code></p>
+<p><strong>Main Endpoint Used</strong>:</p>
+<pre><code>GET /bills?pageNumber=1&amp;pageSize=40&amp;$count=true
+</code></pre>
+<p><strong>Query Parameters</strong>:
+| Parameter | Type | Example | Purpose |
+|-----------|------|---------|---------|
+| pageNumber | int | 1 | Page number (1-based) |
+| pageSize | int | 40 | Records per page (max 100) |
+| $count | boolean | true | Include total count header |
+| $filter | string | billStatus eq 'OPEN' | Filter bills (OData syntax) |
+| expand | string | subCharges,customReferences | Include nested fields |
+| sort | string | billingDate,desc | Sort results |</p>
+<p><strong>Response Format</strong>: JSON Array of Bill Objects</p>
+<p><strong>HTTP Headers Sent</strong>:</p>
+<pre><code class="language-java">conn.setRequestProperty(&quot;APIKey&quot;, API_KEY);
+conn.setRequestProperty(&quot;Accept&quot;, &quot;application/json&quot;);
+</code></pre>
+<p><strong>Response Headers Received</strong>:
+- <code>Content-Type</code>: application/json
+- <code>x-count</code>: Total number of matching bills
+- <code>x-pagecount</code>: Total number of pages</p>
+<p><strong>Available OData Filters</strong>:
+- billStatus (OPEN, CLOSING, CLOSED)
+- transferStatus (NOT_RELEVANT, NOT_TRANSFERRED, TRANSFER_IN_PROGRESS, TRANSFERRED, FAILED)
+- paymentStatus (SUCCESS, ERROR, UNKNOWN, NOT_SETTLED, FAILED)
+- billingType (CHARGE, CREDIT)
+- billingProfileId
+- customer/id
+- subscription/id
+- product/id
+- billingDate (YYYY-MM-DD)
+- createdAt (ISO 8601 timestamp)</p>
+<p><strong>Example API Response</strong> (partial):</p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: &quot;bill-123&quot;,
+    &quot;documentNumber&quot;: 12345,
+    &quot;billingType&quot;: &quot;CHARGE&quot;,
+    &quot;currency&quot;: &quot;USD&quot;,
+    &quot;billStatus&quot;: &quot;OPEN&quot;,
+    &quot;billingDate&quot;: &quot;2026-05-01&quot;,
+    &quot;dueDate&quot;: &quot;2026-05-31&quot;,
+    &quot;netAmount&quot;: {
+      &quot;amount&quot;: &quot;1000.00&quot;,
+      &quot;currency&quot;: &quot;USD&quot;
+    },
+    &quot;grossAmount&quot;: {
+      &quot;amount&quot;: &quot;1100.00&quot;,
+      &quot;currency&quot;: &quot;USD&quot;
+    },
+    &quot;customer&quot;: {
+      &quot;id&quot;: &quot;customer-456&quot;,
+      &quot;type&quot;: &quot;CORPORATE&quot;
+    },
+    &quot;market&quot;: {
+      &quot;id&quot;: &quot;market-eu&quot;
+    },
+    &quot;billItems&quot;: [
+      {
+        &quot;id&quot;: &quot;item-1&quot;,
+        &quot;subscription&quot;: {&quot;id&quot;: &quot;sub-789&quot;},
+        &quot;product&quot;: {&quot;id&quot;: &quot;product-001&quot;}
+      }
+    ]
+  }
+]
+</code></pre>
+<hr />
+<h2 id="data-models">📊 Data Models</h2>
+<h3 id="model-hierarchy-relationships">Model Hierarchy &amp; Relationships</h3>
+<pre><code>Bill (Main Document)
+├── BillItem (Line items)
+│   ├── Charge (Individual charges)
+│   │   ├── SubCharge (Sub-components)
+│   │   ├── PricingElement (Pricing breakdown)
+│   │   └── UsageRecord (Usage details)
+│   │
+│   ├── Credit (Credit note items)
+│   │
+│   ├── Subscription (Reference)
+│   ├── Product (Reference)
+│   └── RatePlan (Reference)
+│
+├── Customer
+├── Market
+├── Payment
+├── CreditCard
+├── Closing (Closing details)
+├── EventLog (Event history)
+├── SuccessorDocument (Related bills)
+├── CustomReference (Extensions)
+├── NotificationSetting
+└── MetaData
+
+Monetary Amounts Used Throughout:
+├── MonetaryAmount (Standard)
+├── MonetaryAmountUpperBound
+├── MonetaryAmountWith6DecimalPlaces
+└── Quantity variants
+</code></pre>
+<h3 id="key-model-features">Key Model Features</h3>
+<p><strong>Auto-Generated Properties</strong>:
+- All models include <code>@JsonProperty</code>, <code>@JsonCreator</code>, <code>@JsonValue</code> annotations
+- Builder pattern with method chaining (e.g., <code>bill.id("123").billingDate(date)</code>)
+- Equals, hashCode, toString implementations
+- Getters and setters for all properties</p>
+<p><strong>Enum Types</strong>:</p>
+<pre><code class="language-java">// BillingType
+CHARGE, CREDIT
+
+// Customer Type
+INDIVIDUAL, CORPORATE
+
+// Bill Status
+OPEN, CLOSING, CLOSED
+
+// Transfer Status
+NOT_RELEVANT, NOT_TRANSFERRED, TRANSFER_IN_PROGRESS, TRANSFERRED, FAILED, FAILED_PARTIALLY
+
+// Payment Status
+SUCCESS, ERROR, UNKNOWN, NOT_SETTLED, FAILED
+
+// Rating Type (for charges)
+RECURRING, ONETIME, USAGE
+</code></pre>
+<p><strong>Nullable Handling</strong>:
+- Uses <code>@javax.annotation.Nullable</code> for optional fields
+- <code>JsonNullable&lt;T&gt;</code> for sophisticated null handling
+- All fields include <code>JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)</code></p>
+<hr />
+<h2 id="main-classes">🎯 Main Classes</h2>
+<h3 id="class-billserver">Class: BillServer</h3>
+<p><strong>Location</strong>: <code>newone/src/main/java/projectsap/sap/bill/main/BillServer.java</code></p>
+<p><strong>Purpose</strong>: Main HTTP server application</p>
+<p><strong>Key Methods</strong>:</p>
+<pre><code>public static void main(String[] args) throws Exception
+  ├── Creates HttpServer on 8080
+  ├── Registers &quot;/&quot; route for dashboard
+  ├── Registers &quot;/bills&quot; route for API
+  ├── Sets executor to null (synchronous)
+  └── Starts server
+
+private static String fetchBillsFromSAP() throws Exception
+  ├── Creates HTTP connection
+  ├── Sets headers (APIKey, Accept)
+  ├── Sends GET request
+  ├── Reads response
+  ├── Returns JSON string
+  └── Handles errors
+
+private static String getDashboardHTML()
+  └── Returns complete HTML/CSS/JavaScript dashboard
+</code></pre>
+<p><strong>Features</strong>:
+- Lightweight HTTP server using Java built-in APIs
+- CORS headers enabled (Access-Control-Allow-Origin: *)
+- Exception handling with error responses
+- Timeout configuration (10 seconds)</p>
+<h3 id="class-testbillapi">Class: TestBillAPI</h3>
+<p><strong>Location</strong>: <code>newone/src/main/java/projectsap/sap/bill/main/TestBillAPI.java</code></p>
+<p><strong>Purpose</strong>: Standalone test utility for API integration</p>
+<p><strong>Key Methods</strong>:</p>
+<pre><code>public static void main(String[] args) throws Exception
+  ├── Creates HTTP connection to API
+  ├── Makes GET request with API key
+  ├── Reads response
+  ├── Deserializes JSON to Bill objects
+  ├── Prints bill information
+  └── Handles errors
+</code></pre>
+<p><strong>Output Format</strong>:</p>
+<pre><code>Calling SAP BillV2 Sandbox API...
+
+Response Code: 200
+Raw JSON Response: [...]
+
+========== BILLS FROM SAP SANDBOX ==========
+Total bills fetched: X
+
+--- Bill 1 ---
+ID              : bill-xxx
+Document Number : 12345
+Billing Type    : CHARGE
+Currency        : USD
+Bill Status     : OPEN
+Due Date        : 2026-05-31
+Billing Date    : 2026-05-01
+</code></pre>
+<hr />
+<h2 id="how-it-works">🚀 How It Works</h2>
+<h3 id="application-flow">Application Flow</h3>
+<h4 id="1-server-startup">1. Server Startup</h4>
+<pre><code>1. Java runtime loads BillServer.main()
+2. Creates HttpServer on port 8080
+3. Registers two route handlers:
+   - &quot;/&quot; → Serves HTML dashboard
+   - &quot;/bills&quot; → Returns JSON bill data
+4. Server starts in sync mode
+5. Listens for incoming requests
+6. Prints startup message to console
+</code></pre>
+<h4 id="2-dashboard-request-httplocalhost8080">2. Dashboard Request (http://localhost:8080/)</h4>
+<pre><code>1. Client sends: GET / HTTP/1.1
+2. Server receives via HttpHandler
+3. Sets response header: Content-Type: text/html
+4. Calls getDashboardHTML()
+5. Returns HTML/CSS/JS code
+6. Client renders dashboard in browser
+7. Dashboard JavaScript makes subsequent /bills requests
+</code></pre>
+<h4 id="3-api-data-request-bills-endpoint">3. API Data Request (/bills endpoint)</h4>
+<pre><code>1. Client/JavaScript sends: GET /bills HTTP/1.1
+2. Server HttpHandler for &quot;/bills&quot; processes request
+3. Calls fetchBillsFromSAP()
+4. Creates HttpURLConnection to SAP API
+5. Sets headers:
+   - APIKey: wITmrAEUGLzlYWC2my5UOKunJinBNwe4
+   - Accept: application/json
+6. Sends GET request
+7. Receives JSON response (200 OK)
+8. Reads response into StringBuilder
+9. Returns JSON string to client
+</code></pre>
+<h4 id="4-json-deserialization-in-testbillapi">4. JSON Deserialization (In TestBillAPI)</h4>
+<pre><code>1. Raw JSON string received
+2. ObjectMapper created with modules:
+   - JavaTimeModule (for date/time parsing)
+3. Deserialization features configured:
+   - FAIL_ON_UNKNOWN_PROPERTIES: false (ignores extra fields)
+4. JSON parsed as JsonNode tree
+5. Each node converted to Bill POJO
+6. Bills added to ArrayList
+7. Bill properties accessed and printed
+</code></pre>
+<h3 id="requestresponse-flow">Request/Response Flow</h3>
+<p><strong>HTTP Request to SAP API</strong>:</p>
+<pre><code>GET /subscriptionbilling/api/bill/v2/bills?pageNumber=1&amp;pageSize=40&amp;%24count=true HTTP/1.1
+Host: sandbox.api.sap.com
+APIKey: wITmrAEUGLzlYWC2my5UOKunJinBNwe4
+Accept: application/json
+Connection: close
+</code></pre>
+<p><strong>HTTP Response from SAP</strong>:</p>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+x-count: 42
+x-pagecount: 2
+Content-Length: 65432
+
+[
+  {&quot;id&quot;: &quot;bill-1&quot;, &quot;documentNumber&quot;: 12345, ...},
+  {&quot;id&quot;: &quot;bill-2&quot;, &quot;documentNumber&quot;: 12346, ...},
+  ...
+]
+</code></pre>
+<p><strong>Dashboard Response</strong>:</p>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: 25000
+
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+...complete HTML dashboard...
+&lt;/html&gt;
+</code></pre>
+<hr />
+<h2 id="running-the-application">🏃 Running the Application</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ol>
+<li><strong>Java Development Kit (JDK)</strong> - JDK 11 or higher</li>
+<li><strong>Compiled Classes</strong> - Must compile Java files first</li>
+<li><strong>Dependencies</strong> - Jackson JAR files must be in classpath</li>
+</ol>
+<h3 id="compilation">Compilation</h3>
+<p><strong>Command</strong> (from <code>g:\final_year_proj</code>):</p>
+<pre><code class="language-bash">javac -cp &quot;newone\src\main\java;tools\*&quot; -d newone\out newone\src\main\java\projectsap\sap\bill\main\*.java
+</code></pre>
+<p><strong>Explanation</strong>:
+- <code>-cp</code>: Classpath (includes source and JAR files)
+- <code>-d</code>: Output directory for compiled classes
+- Sources to compile: BillServer.java, TestBillAPI.java, all model classes</p>
+<h3 id="running-billserver">Running BillServer</h3>
+<p><strong>Command</strong> (from <code>g:\final_year_proj</code>):</p>
+<pre><code class="language-bash">java -cp &quot;newone\out;tools\jackson-databind.jar;tools\jackson-core.jar;tools\jackson-annotations.jar;tools\jackson-jsr310.jar;tools\javax-annotation.jar;tools\jackson-nullable.jar;tools\jsr305.jar&quot; projectsap.sap.bill.main.BillServer
+</code></pre>
+<p><strong>Output</strong>:</p>
+<pre><code>========================================
+  SAP Bill Dashboard is running!
+  Open browser and go to:
+  http://localhost:8080
+========================================
+</code></pre>
+<p><strong>Access Dashboard</strong>:
+- Open web browser
+- Navigate to: <code>http://localhost:8080</code>
+- Dashboard displays bills, charts, statistics</p>
+<h3 id="running-testbillapi">Running TestBillAPI</h3>
+<p><strong>Command</strong> (standalone test):</p>
+<pre><code class="language-bash">java -cp &quot;newone\out;tools\jackson-databind.jar;tools\jackson-core.jar;tools\jackson-annotations.jar;tools\jackson-jsr310.jar;tools\javax-annotation.jar;tools\jackson-nullable.jar;tools\jsr305.jar&quot; projectsap.sap.bill.main.TestBillAPI
+</code></pre>
+<p><strong>Output</strong>:</p>
+<pre><code>Calling SAP BillV2 Sandbox API...
+
+Response Code: 200
+Raw JSON Response: [...]
+========== BILLS FROM SAP SANDBOX ==========
+Total bills fetched: 25
+...
+</code></pre>
+<h3 id="stopping-the-server">Stopping the Server</h3>
+<ul>
+<li>Press <code>Ctrl+C</code> in terminal</li>
+<li>Or kill Java process</li>
+</ul>
+<hr />
+<h2 id="dependencies-libraries">📦 Dependencies &amp; Libraries</h2>
+<h3 id="jackson-library-ecosystem">Jackson Library Ecosystem</h3>
+<p><strong>Purpose</strong>: JSON processing (serialization/deserialization)</p>
+<p><strong>Components</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>JAR File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>jackson-core.jar</td>
+<td>Low-level JSON parsing and generation</td>
+</tr>
+<tr>
+<td>jackson-databind.jar</td>
+<td>Data binding (POJOs to JSON and vice versa)</td>
+</tr>
+<tr>
+<td>jackson-annotations.jar</td>
+<td>Annotations (@JsonProperty, @JsonCreator, etc.)</td>
+</tr>
+<tr>
+<td>jackson-jsr310.jar</td>
+<td>Java 8+ Date/Time support (LocalDate, LocalDateTime)</td>
+</tr>
+<tr>
+<td>jackson-nullable.jar</td>
+<td>JsonNullable type for sophisticated null handling</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Usage in Code</strong>:</p>
+<pre><code class="language-java">// Create mapper
+ObjectMapper mapper = new ObjectMapper();
+mapper.registerModule(new JavaTimeModule());
+mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+// Deserialize JSON to object
+Bill bill = mapper.readValue(jsonString, Bill.class);
+
+// Deserialize to generic tree
+JsonNode root = mapper.readTree(jsonString);
+
+// Convert tree node to object
+Bill bill = mapper.treeToValue(node, Bill.class);
+</code></pre>
+<h3 id="annotation-libraries">Annotation Libraries</h3>
+<table>
+<thead>
+<tr>
+<th>JAR File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>javax-annotation.jar</td>
+<td>Standard Java annotations (@Nullable, @NotNull)</td>
+</tr>
+<tr>
+<td>jsr305.jar</td>
+<td>JSR-305 annotations for null safety and code analysis</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Usage in Code</strong>:</p>
+<pre><code class="language-java">@javax.annotation.Nullable
+@JsonProperty(JSON_PROPERTY_ID)
+public String getId() {
+    return id;
+}
+</code></pre>
+<h3 id="java-built-in-libraries">Java Built-in Libraries</h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>com.sun.net.httpserver</td>
+<td>HTTP server implementation</td>
+</tr>
+<tr>
+<td>java.io</td>
+<td>Input/output streams</td>
+</tr>
+<tr>
+<td>java.net</td>
+<td>Network connections (HttpURLConnection)</td>
+</tr>
+<tr>
+<td>java.util</td>
+<td>Collections (ArrayList, HashMap)</td>
+</tr>
+<tr>
+<td>java.time</td>
+<td>Date/time classes (LocalDate)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="configuration">⚙️ Configuration</h2>
+<h3 id="api-configuration">API Configuration</h3>
+<p><strong>File</strong>: <code>BillServer.java</code> and <code>TestBillAPI.java</code></p>
+<p><strong>Constants</strong>:</p>
+<pre><code class="language-java">private static final String API_KEY = &quot;wITmrAEUGLzlYWC2my5UOKunJinBNwe4&quot;;
+private static final String API_URL = &quot;https://sandbox.api.sap.com/subscriptionbilling/api/bill/v2/bills?pageNumber=1&amp;pageSize=40&amp;%24count=true&quot;;
+</code></pre>
+<p><strong>Modifiable Parameters</strong>:
+| Parameter | Current Value | Purpose |
+|-----------|---------------|---------|
+| Port | 8080 | HTTP server port |
+| pageNumber | 1 | First page of results |
+| pageSize | 40 | Bills per page |
+| Timeout | 10000ms | Network timeout |</p>
+<h3 id="server-configuration">Server Configuration</h3>
+<p><strong>Server Settings</strong>:</p>
+<pre><code class="language-java">HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+server.setExecutor(null);  // Synchronous mode
+server.start();
+</code></pre>
+<p><strong>CORS Settings</strong> (in response headers):</p>
+<pre><code class="language-java">exchange.getResponseHeaders().add(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;);
+</code></pre>
+<h3 id="jackson-configuration">Jackson Configuration</h3>
+<pre><code class="language-java">ObjectMapper mapper = new ObjectMapper();
+mapper.registerModule(new JavaTimeModule());            // Support for Java 8+ time
+mapper.configure(
+    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false  // Ignore extra properties
+);
+</code></pre>
+<hr />
+<h2 id="key-concepts">💡 Key Concepts</h2>
+<h3 id="1-bill-invoice-document">1. Bill (Invoice Document)</h3>
+<p>A bill is the main entity representing a billing document in SAP Subscription Billing. It contains:
+- Header info (ID, document number, dates, amounts)
+- Line items (charges, credits, subscriptions)
+- Party info (customer, payer, bill-to)
+- Lifecycle info (status, closing, transfer)
+- Audit trail (event log, metadata)</p>
+<p><strong>Bill Status Flow</strong>:</p>
+<pre><code>OPEN → CLOSING → CLOSED
+</code></pre>
+<p><strong>Billing Type</strong>:
+- CHARGE: Bill containing costs
+- CREDIT: Credit note (negative amount)</p>
+<h3 id="2-bill-items">2. Bill Items</h3>
+<p>Line items on a bill. Each item can contain:
+- Subscription reference
+- Product reference
+- Charges or credits
+- Pricing details
+- Usage records</p>
+<h3 id="3-charge">3. Charge</h3>
+<p>Represents a cost component:
+- Can be recurring (monthly fee)
+- Can be one-time (setup fee)
+- Can be usage-based (pay per unit)
+- Contains quantity and pricing information</p>
+<h3 id="4-market-region">4. Market &amp; Region</h3>
+<p>Defines market-specific information:
+- Currency
+- Tax rules
+- Market identity
+- Regional configuration</p>
+<h3 id="5-payment">5. Payment</h3>
+<p>Tracks payment information:
+- Payment method
+- Payment status
+- Settlement details
+- Credit card information (if applicable)</p>
+<h3 id="6-closing">6. Closing</h3>
+<p>Manages bill closing process:
+- Closing attempt status
+- Failed attempt records
+- Closing date
+- Processing step</p>
+<h3 id="7-event-log">7. Event Log</h3>
+<p>Audit trail of bill lifecycle:
+- Who created/modified the bill
+- When changes occurred
+- What changes were made
+- Status transitions</p>
+<h3 id="8-custom-references">8. Custom References</h3>
+<p>Extension mechanism for custom fields:
+- Add custom properties to bills
+- Extensibility without API changes
+- Custom identifier mappings</p>
+<h3 id="9-rate-plan">9. Rate Plan</h3>
+<p>Pricing structure:
+- Recurring charges
+- One-time charges
+- Usage-based charges
+- Pricing tiers</p>
+<h3 id="10-pricing-element">10. Pricing Element</h3>
+<p>Breakdown of charges:
+- Price type (fixed, linear, tiered, volume, percentage)
+- Price details
+- Quantity ranges
+- Tier information</p>
+<hr />
+<h2 id="important-implementation-details">🔍 Important Implementation Details</h2>
+<h3 id="json-deserialization">JSON Deserialization</h3>
+<pre><code class="language-java">// Jackson handles:
+// 1. Field name mapping (@JsonProperty)
+// 2. Enum conversion (@JsonCreator)
+// 3. Date/time parsing (JavaTimeModule)
+// 4. Unknown properties (FAIL_ON_UNKNOWN_PROPERTIES: false)
+// 5. Null values (JsonNullable)
+</code></pre>
+<h3 id="http-connection-handling">HTTP Connection Handling</h3>
+<pre><code class="language-java">// Always close connections:
+// - BufferedReader closed after use
+// - HttpURLConnection automatically closed
+// - Proper error handling for all HTTP codes
+</code></pre>
+<h3 id="data-validation">Data Validation</h3>
+<pre><code class="language-java">// Model classes include:
+// - Required vs Optional fields
+// - Enum validation
+// - Type checking via Jackson
+// - Property ordering (JsonPropertyOrder)
+</code></pre>
+<h3 id="performance-considerations">Performance Considerations</h3>
+<ul>
+<li>Synchronous HTTP calls (blocking)</li>
+<li>No connection pooling</li>
+<li>Single-threaded server (executor = null)</li>
+<li>Small page size (40 bills) for sandbox testing</li>
+</ul>
+<h3 id="security-notes">Security Notes</h3>
+<ul>
+<li>API Key exposed in source code (sandbox only!)</li>
+<li>No HTTPS validation in test environment</li>
+<li>CORS headers allow all origins</li>
+<li>Input validation relies on Jackson</li>
+</ul>
+<hr />
+<h2 id="code-generation-background">📝 Code Generation Background</h2>
+<h3 id="openapi-generator">OpenAPI Generator</h3>
+<ul>
+<li><strong>Tool</strong>: org.openapitools.codegen</li>
+<li><strong>Source</strong>: <code>BillV2_APIs.yaml</code></li>
+<li><strong>Output</strong>: 80+ model classes</li>
+<li><strong>Language</strong>: JavaClientCodegen</li>
+<li><strong>Date Generated</strong>: 2026-05-14</li>
+</ul>
+<h3 id="what-was-generated">What Was Generated</h3>
+<ol>
+<li>All model classes in <code>projectsap.sap.bill.model.*</code></li>
+<li>Documentation in <code>tools/generated/docs/*.md</code></li>
+<li>API client classes (if needed)</li>
+<li>Gradle build configurations</li>
+</ol>
+<h3 id="manual-code">Manual Code</h3>
+<ol>
+<li><code>BillServer.java</code> - HTTP server (custom)</li>
+<li><code>TestBillAPI.java</code> - Test utility (custom)</li>
+</ol>
+<hr />
+<h2 id="troubleshooting">🐛 Troubleshooting</h2>
+<h3 id="issue-port-8080-already-in-use">Issue: Port 8080 Already in Use</h3>
+<pre><code class="language-bash"># Windows: Find process using port 8080
+netstat -ano | findstr :8080
+# Kill process
+taskkill /PID &lt;PID&gt; /F
+
+# Change port in BillServer.java:
+HttpServer server = HttpServer.create(new InetSocketAddress(8081), 0);
+</code></pre>
+<h3 id="issue-api-key-expired">Issue: API Key Expired</h3>
+<ul>
+<li>Update <code>API_KEY</code> constant in BillServer.java and TestBillAPI.java</li>
+<li>Regenerate key from SAP account</li>
+</ul>
+<h3 id="issue-json-deserialization-fails">Issue: JSON Deserialization Fails</h3>
+<ul>
+<li>Check that all required Jackson JARs are in classpath</li>
+<li>Verify API response structure matches model definitions</li>
+<li>Check Jackson configuration (FAIL_ON_UNKNOWN_PROPERTIES)</li>
+</ul>
+<h3 id="issue-connection-timeout">Issue: Connection Timeout</h3>
+<ul>
+<li>Increase timeout values in fetchBillsFromSAP()</li>
+<li>Check internet connectivity</li>
+<li>Verify SAP API is running</li>
+</ul>
+<hr />
+<h2 id="related-documentation">📚 Related Documentation</h2>
+<h3 id="external-resources">External Resources</h3>
+<ul>
+<li><strong>SAP Subscription Billing API Guide</strong>: https://help.sap.com/viewer/987aec876092428f88162e438acf80d6/latest/en-US/</li>
+<li><strong>OpenAPI Specification</strong>: https://spec.openapis.org/oas/v3.0.3</li>
+<li><strong>Jackson Documentation</strong>: https://github.com/FasterXML/jackson</li>
+<li><strong>Java HttpServer</strong>: https://docs.oracle.com/javase/11/docs/api/com.sun.net.httpserver/module-summary.html</li>
+</ul>
+<h3 id="generated-documentation">Generated Documentation</h3>
+<ul>
+<li>See <code>tools/generated/docs/</code> for detailed model documentation</li>
+</ul>
+<hr />
+<h2 id="summary">📋 Summary</h2>
+<p>This codebase is a <strong>SAP Subscription Billing API integration</strong> that:</p>
+<ol>
+<li><strong>Connects</strong> to SAP's Bills v2 REST API using HTTP</li>
+<li><strong>Fetches</strong> billing documents from sandbox environment</li>
+<li><strong>Models</strong> the data using 80+ auto-generated POJO classes</li>
+<li><strong>Serves</strong> a web dashboard on localhost:8080</li>
+<li><strong>Provides</strong> JSON API access to bill data</li>
+</ol>
+<p><strong>Technology</strong>: Java + Jackson + HTTP Server<br />
+<strong>Architecture</strong>: Client ↔ HTTP Server ↔ SAP API<br />
+<strong>Use Case</strong>: Billing data integration and visualization<br />
+<strong>Purpose</strong>: Final year project for SAP Subscription Billing</p>
+<hr />
+<p><strong>Generated</strong>: May 15, 2026<br />
+<strong>Version</strong>: 1.0<br />
+<strong>Status</strong>: Complete Documentation</p>
+            </article>
+        </div>
+    </main>
+
+    <!-- PrismJS libraries for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+    <script>
+        // Theme Toggle Script
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const themeText = themeToggle.querySelector('span');
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        updateThemeUI(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeUI(newTheme);
+        });
+
+        function updateThemeUI(theme) {
+            if (theme === 'dark') {
+                themeIcon.className = 'fa-solid fa-sun';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.className = 'fa-solid fa-moon';
+                themeText.textContent = 'Dark Mode';
+            }
+        }
+
+        // Mobile Sidebar Toggle
+        const hamburger = document.getElementById('hamburger');
+        const sidebar = document.getElementById('sidebar');
+        
+        hamburger.addEventListener('click', (e) => {
+            sidebar.classList.toggle('open');
+            e.stopPropagation();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== hamburger) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Print PDF button
+        document.getElementById('printBtn').addEventListener('click', () => {
+            window.print();
+        });
+
+        // Add copy button to code blocks
+        document.querySelectorAll('pre').forEach((preBlock) => {
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-code-btn';
+            copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
+            
+            copyBtn.addEventListener('click', () => {
+                const codeText = preBlock.querySelector('code').innerText;
+                navigator.clipboard.writeText(codeText).then(() => {
+                    copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
+                    }, 2000);
+                });
+            });
+            
+            preBlock.appendChild(copyBtn);
+        });
+
+        // Highlight TOC on Scroll
+        const sections = document.querySelectorAll('.markdown-body h1, .markdown-body h2, .markdown-body h3');
+        const tocLinks = document.querySelectorAll('.toc a');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '-64px 0px -40% 0px',
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    if (!id) return;
+                    
+                    tocLinks.forEach(link => {
+                        const href = link.getAttribute('href');
+                        const parentLi = link.parentElement;
+                        
+                        if (href === '#' + id) {
+                            parentLi.classList.add('active');
+                            // Scroll TOC item into view smoothly in sidebar
+                            parentLi.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        } else {
+                            parentLi.classList.remove('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => observer.observe(section));
+
+        // Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const tocItems = document.querySelectorAll('.toc li');
+            const paragraphs = document.querySelectorAll('.markdown-body p, .markdown-body li, .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body tr');
+
+            // Filter TOC items
+            tocItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Highlight matches in body if query is not empty
+            if (query === '') {
+                // Reset styling
+                document.querySelectorAll('.search-highlight').forEach(el => {
+                    el.replaceWith(document.createTextNode(el.textContent));
+                });
+                return;
+            }
+
+            // Highlight is simple here - we can filter main view headings or sections
+            // Or just filter headings. For clean UI, we just let TOC handle search filtering.
+        });
+    </script>
+</body>
+</html>
