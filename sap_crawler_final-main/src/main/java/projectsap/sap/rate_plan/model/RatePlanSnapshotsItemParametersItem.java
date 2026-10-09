@@ -1,6 +1,6 @@
 /*
- * SAP Subscription Service API
- * Auto-generated OpenAPI 3.0 specification for SAP subscription
+ * SAP Rate_plan Service API
+ * Auto-generated OpenAPI 3.0 specification for SAP rate_plan
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -11,7 +11,7 @@
  */
 
 
-package projectsap.sap.subscription.model;
+package projectsap.sap.rate_plan.model;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -29,24 +29,24 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem
+ * RatePlanSnapshotsItemParametersItem
  */
 @JsonPropertyOrder({
-  SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem.JSON_PROPERTY_CODE,
-  SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem.JSON_PROPERTY_VALUE
+  RatePlanSnapshotsItemParametersItem.JSON_PROPERTY_CODE,
+  RatePlanSnapshotsItemParametersItem.JSON_PROPERTY_VALUE
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-10-08T23:47:29.174054300+05:30[Asia/Calcutta]", comments = "Generator version: 7.5.0")
-public class SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem {
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-10-09T23:03:08.802064100+05:30[Asia/Calcutta]", comments = "Generator version: 7.5.0")
+public class RatePlanSnapshotsItemParametersItem {
   public static final String JSON_PROPERTY_CODE = "code";
   private String code;
 
   public static final String JSON_PROPERTY_VALUE = "value";
   private String value;
 
-  public SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem() { 
+  public RatePlanSnapshotsItemParametersItem() { 
   }
 
-  public SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem code(String code) {
+  public RatePlanSnapshotsItemParametersItem code(String code) {
     this.code = code;
     return this;
   }
@@ -71,7 +71,7 @@ public class SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem {
   }
 
 
-  public SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem value(String value) {
+  public RatePlanSnapshotsItemParametersItem value(String value) {
     this.value = value;
     return this;
   }
@@ -97,7 +97,7 @@ public class SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem {
 
 
   /**
-   * Return true if this SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem object is equal to o.
+   * Return true if this Rate_planSnapshotsItemParametersItem object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -107,9 +107,9 @@ public class SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem subscriptionSnapshotsItemItemsItemSubscriptionParametersItem = (SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem) o;
-    return Objects.equals(this.code, subscriptionSnapshotsItemItemsItemSubscriptionParametersItem.code) &&
-        Objects.equals(this.value, subscriptionSnapshotsItemItemsItemSubscriptionParametersItem.value);
+    RatePlanSnapshotsItemParametersItem ratePlanSnapshotsItemParametersItem = (RatePlanSnapshotsItemParametersItem) o;
+    return Objects.equals(this.code, ratePlanSnapshotsItemParametersItem.code) &&
+        Objects.equals(this.value, ratePlanSnapshotsItemParametersItem.value);
   }
 
   @Override
@@ -120,7 +120,7 @@ public class SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SubscriptionSnapshotsItemItemsItemSubscriptionParametersItem {\n");
+    sb.append("class RatePlanSnapshotsItemParametersItem {\n");
     sb.append("    code: ").append(toIndentedString(code)).append("\n");
     sb.append("    value: ").append(toIndentedString(value)).append("\n");
     sb.append("}");

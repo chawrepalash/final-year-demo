@@ -114,15 +114,67 @@ public class BillServer {
             if (handlePreflight(exchange)) return;
 
             try {
-                System.out.println("[Sync] Fetching latest bills from SAP API via Apache HttpClient...");
-                String json = SapApiClient.fetchBillsFromSAP();
-                int count = DatabaseManager.saveBills(json);
+                String path = exchange.getRequestURI().getPath();
+                Map<String, String> qParams = parseQuery(exchange.getRequestURI().getQuery());
+                String serviceParam = qParams.get("service");
+
+                String serviceName = "bills";
+                if (path.length() > "/api/sync/".length()) {
+                    serviceName = path.substring("/api/sync/".length()).trim();
+                } else if (serviceParam != null && !serviceParam.trim().isEmpty()) {
+                    serviceName = serviceParam.trim();
+                }
+
+                System.out.println("[Sync] Syncing service '" + serviceName + "' from SAP API via Apache HttpClient...");
+                String json;
+                int count;
+
+                if ("bills".equalsIgnoreCase(serviceName) || "bill".equalsIgnoreCase(serviceName)) {
+                    json = SapApiClient.fetchBillsFromSAP();
+                    count = DatabaseManager.saveBills(json);
+                } else {
+                    var desc = SapServiceRegistry.getDescriptor(serviceName);
+                    String endpoint = desc != null ? desc.getDefaultEndpoint() : null;
+                    if (endpoint == null) {
+                        sendJson(exchange, 400, "{\"error\":\"Unknown or unregistered service: " + escapeJson(serviceName) + "\"}");
+                        return;
+                    }
+                    json = SapApiClient.fetchFromUrl(endpoint);
+                    count = DatabaseManager.saveServiceData(serviceName, json);
+                }
+
+                String tableName = DatabaseManager.resolveTableName(serviceName);
                 sendJson(exchange, 200,
-                    "{\"success\":true,\"message\":\"Successfully synced " + count + " bills via Auto POJO Conversion (Zero Manual Mapping)\",\"count\":" + count + "}");
+                    "{\"success\":true,\"service\":\"" + escapeJson(serviceName) + "\",\"table\":\"" + escapeJson(tableName) + "\",\"message\":\"Successfully synced " + count + " records via Auto POJO & Dynamic Database Persistence\",\"count\":" + count + "}");
             } catch (Exception e) {
                 e.printStackTrace();
                 DatabaseManager.logFetchError(e.getMessage());
                 sendJson(exchange, 500, "{\"success\":false,\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
+            }
+        });
+
+        // ── REST API: Get Stored Data for Any Service ──────────────
+        server.createContext("/api/data", exchange -> {
+            addCorsHeaders(exchange);
+            if (handlePreflight(exchange)) return;
+
+            try {
+                String path = exchange.getRequestURI().getPath();
+                String serviceName = "bills";
+                if (path.length() > "/api/data/".length()) {
+                    serviceName = path.substring("/api/data/".length()).trim();
+                } else {
+                    Map<String, String> qParams = parseQuery(exchange.getRequestURI().getQuery());
+                    if (qParams.containsKey("service")) {
+                        serviceName = qParams.get("service").trim();
+                    }
+                }
+
+                String json = DatabaseManager.getServiceData(serviceName);
+                sendJson(exchange, 200, json);
+            } catch (Exception e) {
+                e.printStackTrace();
+                sendJson(exchange, 500, "{\"error\":\"" + escapeJson(e.getMessage()) + "\"}");
             }
         });
 
@@ -154,6 +206,8 @@ public class BillServer {
                     item.put("defaultEndpoint", desc.getDefaultEndpoint());
                     item.put("pojoClass", desc.getPojoClass().getName());
                     item.put("description", desc.getDescription());
+                    item.put("tableName", DatabaseManager.resolveTableName(desc.getServiceId()));
+                    item.put("recordCount", DatabaseManager.getServiceCount(desc.getServiceId()));
                     serviceList.add(item);
                 }
                 sendJson(exchange, 200, GenericSapParser.toJson(serviceList));

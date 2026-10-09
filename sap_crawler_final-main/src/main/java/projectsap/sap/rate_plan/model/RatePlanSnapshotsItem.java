@@ -1,6 +1,6 @@
 /*
- * SAP Subscription Service API
- * Auto-generated OpenAPI 3.0 specification for SAP subscription
+ * SAP Rate_plan Service API
+ * Auto-generated OpenAPI 3.0 specification for SAP rate_plan
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -11,7 +11,7 @@
  */
 
 
-package projectsap.sap.subscription.model;
+package projectsap.sap.rate_plan.model;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -24,51 +24,62 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import projectsap.sap.rate_plan.model.RatePlanSnapshotsItemParametersItem;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * SubscriptionCancellationPolicy
+ * RatePlanSnapshotsItem
  */
 @JsonPropertyOrder({
-  SubscriptionCancellationPolicy.JSON_PROPERTY_ALLOW_MID_BILL_CYCLE_EXPIRATION
+  RatePlanSnapshotsItem.JSON_PROPERTY_PARAMETERS
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-10-08T23:47:29.174054300+05:30[Asia/Calcutta]", comments = "Generator version: 7.5.0")
-public class SubscriptionCancellationPolicy {
-  public static final String JSON_PROPERTY_ALLOW_MID_BILL_CYCLE_EXPIRATION = "allowMidBillCycleExpiration";
-  private Boolean allowMidBillCycleExpiration;
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-10-09T23:03:08.802064100+05:30[Asia/Calcutta]", comments = "Generator version: 7.5.0")
+public class RatePlanSnapshotsItem {
+  public static final String JSON_PROPERTY_PARAMETERS = "parameters";
+  private List<RatePlanSnapshotsItemParametersItem> parameters = new ArrayList<>();
 
-  public SubscriptionCancellationPolicy() { 
+  public RatePlanSnapshotsItem() { 
   }
 
-  public SubscriptionCancellationPolicy allowMidBillCycleExpiration(Boolean allowMidBillCycleExpiration) {
-    this.allowMidBillCycleExpiration = allowMidBillCycleExpiration;
+  public RatePlanSnapshotsItem parameters(List<RatePlanSnapshotsItemParametersItem> parameters) {
+    this.parameters = parameters;
+    return this;
+  }
+
+  public RatePlanSnapshotsItem addParametersItem(RatePlanSnapshotsItemParametersItem parametersItem) {
+    if (this.parameters == null) {
+      this.parameters = new ArrayList<>();
+    }
+    this.parameters.add(parametersItem);
     return this;
   }
 
    /**
-   * Get allowMidBillCycleExpiration
-   * @return allowMidBillCycleExpiration
+   * Get parameters
+   * @return parameters
   **/
   @javax.annotation.Nullable
-  @JsonProperty(JSON_PROPERTY_ALLOW_MID_BILL_CYCLE_EXPIRATION)
+  @JsonProperty(JSON_PROPERTY_PARAMETERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
 
-  public Boolean getAllowMidBillCycleExpiration() {
-    return allowMidBillCycleExpiration;
+  public List<RatePlanSnapshotsItemParametersItem> getParameters() {
+    return parameters;
   }
 
 
-  @JsonProperty(JSON_PROPERTY_ALLOW_MID_BILL_CYCLE_EXPIRATION)
+  @JsonProperty(JSON_PROPERTY_PARAMETERS)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setAllowMidBillCycleExpiration(Boolean allowMidBillCycleExpiration) {
-    this.allowMidBillCycleExpiration = allowMidBillCycleExpiration;
+  public void setParameters(List<RatePlanSnapshotsItemParametersItem> parameters) {
+    this.parameters = parameters;
   }
 
 
   /**
-   * Return true if this SubscriptionCancellationPolicy object is equal to o.
+   * Return true if this Rate_planSnapshotsItem object is equal to o.
    */
   @Override
   public boolean equals(Object o) {
@@ -78,20 +89,20 @@ public class SubscriptionCancellationPolicy {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SubscriptionCancellationPolicy subscriptionCancellationPolicy = (SubscriptionCancellationPolicy) o;
-    return Objects.equals(this.allowMidBillCycleExpiration, subscriptionCancellationPolicy.allowMidBillCycleExpiration);
+    RatePlanSnapshotsItem ratePlanSnapshotsItem = (RatePlanSnapshotsItem) o;
+    return Objects.equals(this.parameters, ratePlanSnapshotsItem.parameters);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(allowMidBillCycleExpiration);
+    return Objects.hash(parameters);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class SubscriptionCancellationPolicy {\n");
-    sb.append("    allowMidBillCycleExpiration: ").append(toIndentedString(allowMidBillCycleExpiration)).append("\n");
+    sb.append("class RatePlanSnapshotsItem {\n");
+    sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -139,9 +150,14 @@ public class SubscriptionCancellationPolicy {
 
     StringJoiner joiner = new StringJoiner("&");
 
-    // add `allowMidBillCycleExpiration` to the URL query string
-    if (getAllowMidBillCycleExpiration() != null) {
-      joiner.add(String.format("%sallowMidBillCycleExpiration%s=%s", prefix, suffix, URLEncoder.encode(String.valueOf(getAllowMidBillCycleExpiration()), StandardCharsets.UTF_8).replaceAll("\\+", "%20")));
+    // add `parameters` to the URL query string
+    if (getParameters() != null) {
+      for (int i = 0; i < getParameters().size(); i++) {
+        if (getParameters().get(i) != null) {
+          joiner.add(getParameters().get(i).toUrlQueryString(String.format("%sparameters%s%s", prefix, suffix,
+          "".equals(suffix) ? "" : String.format("%s%d%s", containerPrefix, i, containerSuffix))));
+        }
+      }
     }
 
     return joiner.toString();

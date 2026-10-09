@@ -105,13 +105,16 @@ public class GenericSapParser {
     /**
      * Helper to detect and extract the inner array node from SAP-wrapped responses.
      */
-    private static JsonNode extractArrayNode(JsonNode root) {
+    public static JsonNode extractArrayNode(JsonNode root) {
+        if (root == null) {
+            return null;
+        }
         if (root.isArray()) {
             return root;
         }
 
         // Standard SAP REST wrappers
-        String[] wrapperKeys = {"bills", "value", "items", "data", "results", "content"};
+        String[] wrapperKeys = {"bills", "subscriptions", "value", "items", "data", "results", "content"};
         for (String key : wrapperKeys) {
             if (root.has(key) && root.get(key).isArray()) {
                 return root.get(key);

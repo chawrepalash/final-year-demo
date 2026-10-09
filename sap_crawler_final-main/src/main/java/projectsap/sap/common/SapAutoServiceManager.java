@@ -9,6 +9,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import projectsap.sap.bill.db.DatabaseManager;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -107,11 +108,12 @@ public class SapAutoServiceManager {
         System.out.println("  ✓ Saved specification to: " + targetSpecPath.toAbsolutePath());
 
         // Step 4: Run POJO generation command
-        System.out.println("\n[Step 2/3] Generating Java POJOs for " + serviceName + "...");
+        System.out.println("\n[Step 2/4] Generating Java POJOs for " + serviceName + "...");
         runPojoGenerator(serviceName, targetSpecPath.toString());
         copyGeneratedFilesToSrc(serviceName);
 
         // Step 5: Auto-register in SapServiceRegistry
+        System.out.println("\n[Step 3/4] Registering service in SapServiceRegistry...");
         String capitalizedModel = capitalize(serviceName);
         String fullPojoClassName = "projectsap.sap." + serviceName + ".model." + capitalizedModel;
         SapServiceRegistry.registerDynamic(
@@ -122,10 +124,29 @@ public class SapAutoServiceManager {
                 "Auto-generated service for SAP " + serviceName
         );
 
-        System.out.println("\n[Step 3/3] Setup complete! Service is ready for Auto POJO conversion.");
-        System.out.println("  - Model Package: projectsap.sap." + serviceName + ".model");
-        System.out.println("  - Main POJO:     " + fullPojoClassName);
-        System.out.println("  - Specification: " + targetSpecPath);
+        // Step 6: Automatically create database table & store data
+        System.out.println("\n[Step 4/4] Creating Database Table & Persisting Data in Database...");
+        try {
+            DatabaseManager.testConnection();
+            DatabaseManager.initDatabase();
+            String tableName = DatabaseManager.resolveTableName(serviceName);
+            if (!isOpenApi) {
+                int storedCount = DatabaseManager.saveServiceData(serviceName, content);
+                System.out.println("  ✓ Database Table '" + tableName + "' created and active in " + DatabaseManager.getDbEngineName());
+                System.out.println("  ✓ Stored " + storedCount + " records directly into database table '" + tableName + "'!");
+            } else {
+                System.out.println("  ✓ Database Table '" + tableName + "' ready for data persistence in " + DatabaseManager.getDbEngineName());
+            }
+        } catch (Exception e) {
+            System.err.println("  ℹ Database initialization note: " + e.getMessage());
+        }
+
+        System.out.println("\n==================================================================");
+        System.out.println("  Setup complete! Service POJOs and Database are ready.");
+        System.out.println("  - Model Package:  projectsap.sap." + serviceName + ".model");
+        System.out.println("  - Main POJO:      " + fullPojoClassName);
+        System.out.println("  - Database Table: " + DatabaseManager.resolveTableName(serviceName));
+        System.out.println("  - Specification:  " + targetSpecPath);
         System.out.println("==================================================================");
 
         return targetSpecPath.toFile();

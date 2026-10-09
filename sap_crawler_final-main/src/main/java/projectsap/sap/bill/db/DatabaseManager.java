@@ -11,8 +11,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Manages database operations for SAP Bill data.
@@ -26,7 +25,7 @@ public class DatabaseManager {
     private static final int PG_PORT = Integer.parseInt(System.getProperty("db.port", System.getenv().getOrDefault("DB_PORT", "5432")));
     private static final String PG_DB = System.getProperty("db.name", System.getenv().getOrDefault("DB_NAME", "sap_bills"));
     private static final String PG_USER = System.getProperty("db.user", System.getenv().getOrDefault("DB_USER", "postgres"));
-    private static final String PG_PASS = System.getProperty("db.pass", System.getenv().getOrDefault("DB_PASS", "postgres"));
+    private static final String PG_PASS = System.getProperty("db.pass", System.getenv().getOrDefault("DB_PASS", "flash"));
 
     private static final String PG_URL = "jdbc:postgresql://" + PG_HOST + ":" + PG_PORT + "/" + PG_DB;
 
@@ -289,6 +288,440 @@ public class DatabaseManager {
         }
 
         return count;
+    }
+
+    /**
+     * Resolves and normalizes an SAP service name to a clean database table name.
+     */
+    public static String resolveTableName(String serviceName) {
+        if (serviceName == null || serviceName.trim().isEmpty()) {
+            return "generic_service";
+        }
+        String clean = serviceName.trim().toLowerCase().replaceAll("[^a-z0-9_]", "_");
+        if (clean.equals("bill")) return "bills";
+        if (clean.equals("subscription")) return "subscriptions";
+        if (clean.equals("customer")) return "customers";
+        if (clean.equals("product")) return "products";
+        if (!clean.endsWith("s") && !clean.endsWith("data")) {
+            return clean + "s";
+        }
+        return clean;
+    }
+
+    /**
+     * Automatically ensures that the database table exists for a given service.
+     * If the table does not exist, dynamic DDL is generated and executed in PostgreSQL/H2.
+     */
+    public static void ensureServiceTable(Connection conn, String tableName, JsonNode sampleItem) throws SQLException {
+        DatabaseMetaData meta = conn.getMetaData();
+        boolean exists = false;
+        try (ResultSet rs = meta.getTables(null, null, tableName.toUpperCase(), new String[]{"TABLE"})) {
+            if (rs.next()) exists = true;
+        }
+        if (!exists) {
+            try (ResultSet rs = meta.getTables(null, null, tableName.toLowerCase(), new String[]{"TABLE"})) {
+                if (rs.next()) exists = true;
+            }
+        }
+        if (exists) {
+            return;
+        }
+
+        // Dedicated predefined DDL for subscriptions if not already created
+        if ("subscriptions".equalsIgnoreCase(tableName)) {
+            String createSubscriptionsTable = """
+                CREATE TABLE IF NOT EXISTS subscriptions (
+                    id                 VARCHAR(255) PRIMARY KEY,
+                    subscription_id    VARCHAR(255),
+                    status             VARCHAR(100),
+                    customer_id        VARCHAR(255),
+                    market_id          VARCHAR(100),
+                    currency           VARCHAR(10),
+                    valid_from         VARCHAR(100),
+                    valid_until        VARCHAR(100),
+                    billing_profile_id VARCHAR(100),
+                    raw_json           TEXT,
+                    fetched_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at         TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                """;
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(createSubscriptionsTable);
+                System.out.println("[DB] Auto-created dedicated table 'subscriptions' in " + dbEngineName + ".");
+            }
+            return;
+        }
+
+        // Auto-generate DDL dynamically from sampleItem fields
+        StringBuilder ddl = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (\n");
+        ddl.append("    id VARCHAR(255) PRIMARY KEY,\n");
+
+        if (sampleItem != null && sampleItem.isObject()) {
+            Iterator<Map.Entry<String, JsonNode>> fields = sampleItem.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> entry = fields.next();
+                String prop = entry.getKey();
+                if ("id".equalsIgnoreCase(prop)) continue;
+
+                String col = toSnakeCase(prop);
+                JsonNode val = entry.getValue();
+
+                if (val.isObject() && val.has("id")) {
+                    ddl.append("    ").append(col).append("_id VARCHAR(255),\n");
+                } else if (val.isBoolean()) {
+                    ddl.append("    ").append(col).append(" BOOLEAN,\n");
+                } else if (val.isInt() || val.isLong()) {
+                    ddl.append("    ").append(col).append(" BIGINT,\n");
+                } else if (val.isFloatingPointNumber() || val.isBigDecimal()) {
+                    ddl.append("    ").append(col).append(" DECIMAL(18,2),\n");
+                } else if (val.isTextual()) {
+                    String text = val.asText();
+                    if (text.length() > 255) {
+                        ddl.append("    ").append(col).append(" TEXT,\n");
+                    } else {
+                        ddl.append("    ").append(col).append(" VARCHAR(255),\n");
+                    }
+                }
+            }
+        }
+
+        ddl.append("    raw_json TEXT,\n");
+        ddl.append("    fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n");
+        ddl.append("    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n");
+        ddl.append(")");
+
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(ddl.toString());
+            System.out.println("[DB] Auto-generated and created table '" + tableName + "' in " + dbEngineName + ".");
+        }
+    }
+
+    /**
+     * Save subscriptions to the database using Auto POJO conversion and dynamic persistence.
+     */
+    public static int saveSubscriptions(String jsonResponse) throws Exception {
+        return saveServiceData("subscriptions", jsonResponse);
+    }
+
+    /**
+     * Universal Dynamic Service Data Saver.
+     * Automatically inspects table schema, auto-creates database tables if missing,
+     * and upserts records into PostgreSQL/H2 with zero manual mapping.
+     */
+    public static int saveServiceData(String serviceName, String jsonResponse) throws Exception {
+        if (jsonResponse == null || jsonResponse.trim().isEmpty()) {
+            return 0;
+        }
+
+        String tableName = resolveTableName(serviceName);
+
+        // If saving bills, delegate to typed saveBills
+        if ("bills".equalsIgnoreCase(tableName)) {
+            return saveBills(jsonResponse);
+        }
+
+        JsonNode root = mapper.readTree(jsonResponse);
+        JsonNode arrayNode = GenericSapParser.extractArrayNode(root);
+
+        List<JsonNode> items = new ArrayList<>();
+        if (arrayNode != null && arrayNode.isArray()) {
+            for (JsonNode item : arrayNode) {
+                items.add(item);
+            }
+        } else if (root.isObject()) {
+            items.add(root);
+        }
+
+        if (items.isEmpty()) {
+            System.out.println("[DB] No records found in payload for service '" + serviceName + "'.");
+            return 0;
+        }
+
+        int count = 0;
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                // 1. Ensure table exists
+                ensureServiceTable(conn, tableName, items.get(0));
+
+                // 2. Discover actual columns in the table
+                DatabaseMetaData meta = conn.getMetaData();
+                List<String> columns = new ArrayList<>();
+                Set<String> colSet = new LinkedHashSet<>();
+
+                try (ResultSet rs = meta.getColumns(null, null, tableName.toUpperCase(), null)) {
+                    while (rs.next()) {
+                        String c = rs.getString("COLUMN_NAME").toLowerCase();
+                        if (colSet.add(c)) columns.add(c);
+                    }
+                }
+                if (columns.isEmpty()) {
+                    try (ResultSet rs = meta.getColumns(null, null, tableName.toLowerCase(), null)) {
+                        while (rs.next()) {
+                            String c = rs.getString("COLUMN_NAME").toLowerCase();
+                            if (colSet.add(c)) columns.add(c);
+                        }
+                    }
+                }
+
+                // 3. Prepare check SQL
+                String checkSql = "SELECT id FROM " + tableName + " WHERE id = ?";
+
+                // 4. Prepare insert and update SQL dynamically
+                List<String> insertCols = new ArrayList<>();
+                for (String col : columns) {
+                    if (!col.equalsIgnoreCase("fetched_at") && !col.equalsIgnoreCase("updated_at")) {
+                        insertCols.add(col);
+                    }
+                }
+
+                List<String> updateCols = new ArrayList<>();
+                for (String col : insertCols) {
+                    if (!col.equalsIgnoreCase("id")) {
+                        updateCols.add(col);
+                    }
+                }
+
+                StringBuilder insertSql = new StringBuilder("INSERT INTO ").append(tableName).append(" (");
+                StringBuilder insertPlaceholders = new StringBuilder();
+                for (int i = 0; i < insertCols.size(); i++) {
+                    if (i > 0) {
+                        insertSql.append(", ");
+                        insertPlaceholders.append(", ");
+                    }
+                    insertSql.append(insertCols.get(i));
+                    insertPlaceholders.append("?");
+                }
+                insertSql.append(", fetched_at, updated_at) VALUES (")
+                         .append(insertPlaceholders)
+                         .append(", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+
+                StringBuilder updateSql = new StringBuilder("UPDATE ").append(tableName).append(" SET ");
+                for (int i = 0; i < updateCols.size(); i++) {
+                    if (i > 0) updateSql.append(", ");
+                    updateSql.append(updateCols.get(i)).append(" = ?");
+                }
+                updateSql.append(", updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+
+                try (PreparedStatement psCheck = conn.prepareStatement(checkSql);
+                     PreparedStatement psInsert = conn.prepareStatement(insertSql.toString());
+                     PreparedStatement psUpdate = conn.prepareStatement(updateSql.toString())) {
+
+                    for (JsonNode item : items) {
+                        String id = resolveId(item, serviceName);
+                        if (id == null || id.isEmpty()) {
+                            id = UUID.randomUUID().toString();
+                        }
+
+                        psCheck.setString(1, id);
+                        boolean exists;
+                        try (ResultSet rs = psCheck.executeQuery()) {
+                            exists = rs.next();
+                        }
+
+                        String rawJson = mapper.writeValueAsString(item);
+
+                        if (exists) {
+                            int pIdx = 1;
+                            for (String col : updateCols) {
+                                if ("raw_json".equalsIgnoreCase(col)) {
+                                    psUpdate.setString(pIdx++, rawJson);
+                                } else {
+                                    setColumnParam(psUpdate, pIdx++, item, col);
+                                }
+                            }
+                            psUpdate.setString(pIdx, id);
+                            psUpdate.executeUpdate();
+                        } else {
+                            int pIdx = 1;
+                            for (String col : insertCols) {
+                                if ("id".equalsIgnoreCase(col)) {
+                                    psInsert.setString(pIdx++, id);
+                                } else if ("raw_json".equalsIgnoreCase(col)) {
+                                    psInsert.setString(pIdx++, rawJson);
+                                } else {
+                                    setColumnParam(psInsert, pIdx++, item, col);
+                                }
+                            }
+                            psInsert.executeUpdate();
+                        }
+                        count++;
+                    }
+
+                    conn.commit();
+                    System.out.println("[DB] Auto-stored/updated " + count + " records in table '" + tableName + "' (" + dbEngineName + ").");
+                    logFetch(conn, count, "SUCCESS", "Saved " + count + " " + serviceName + " records to table " + tableName);
+                } catch (Exception e) {
+                    conn.rollback();
+                    throw e;
+                }
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+        return count;
+    }
+
+    private static String resolveId(JsonNode item, String serviceName) {
+        if (item == null) return null;
+        String[] candidateIdKeys = {
+            "id",
+            serviceName + "Id",
+            "subscriptionId",
+            "subscriptionDocumentId",
+            "documentNumber",
+            "code",
+            "uuid"
+        };
+        for (String k : candidateIdKeys) {
+            if (item.has(k) && !item.get(k).isNull()) {
+                String val = item.get(k).asText();
+                if (val != null && !val.trim().isEmpty()) {
+                    return val.trim();
+                }
+            }
+        }
+        return null;
+    }
+
+    private static void setColumnParam(PreparedStatement ps, int paramIndex, JsonNode item, String colName) throws SQLException {
+        JsonNode val = extractFieldValue(item, colName);
+        if (val == null || val.isNull()) {
+            ps.setObject(paramIndex, null);
+            return;
+        }
+        if (val.isBoolean()) {
+            ps.setBoolean(paramIndex, val.asBoolean());
+        } else if (val.isInt() || val.isLong()) {
+            ps.setLong(paramIndex, val.asLong());
+        } else if (val.isFloatingPointNumber() || val.isBigDecimal()) {
+            ps.setBigDecimal(paramIndex, new BigDecimal(val.asText()));
+        } else if (val.isObject() || val.isArray()) {
+            ps.setString(paramIndex, val.toString());
+        } else {
+            ps.setString(paramIndex, val.asText());
+        }
+    }
+
+    private static JsonNode extractFieldValue(JsonNode item, String colName) {
+        if (item.has(colName)) return item.get(colName);
+        String camel = toCamelCase(colName);
+        if (item.has(camel)) return item.get(camel);
+
+        // Sub-object ID matching (e.g. customer_id -> customer.id)
+        if (colName.endsWith("_id")) {
+            String parentProp = colName.substring(0, colName.length() - 3);
+            JsonNode parent = item.has(parentProp) ? item.get(parentProp) : item.get(toCamelCase(parentProp));
+            if (parent != null && parent.isObject() && parent.has("id")) {
+                return parent.get("id");
+            }
+        }
+        // Sub-object currency matching (e.g. market_currency or currency -> market.currency)
+        if (colName.endsWith("currency")) {
+            if (item.has("market") && item.get("market").has("currency")) {
+                return item.get("market").get("currency");
+            }
+        }
+        return null;
+    }
+
+    public static String toSnakeCase(String str) {
+        if (str == null) return "";
+        String s = str.replaceAll("([a-z0-9])([A-Z])", "$1_$2").toLowerCase().replaceAll("[^a-z0-9_]", "_");
+        s = s.replaceAll("_+", "_");
+        if (s.startsWith("_")) s = s.substring(1);
+        if (s.endsWith("_")) s = s.substring(0, s.length() - 1);
+        return s;
+    }
+
+    public static String toCamelCase(String snake) {
+        if (snake == null) return "";
+        StringBuilder sb = new StringBuilder();
+        boolean nextUpper = false;
+        for (char c : snake.toCharArray()) {
+            if (c == '_') {
+                nextUpper = true;
+            } else if (nextUpper) {
+                sb.append(Character.toUpperCase(c));
+                nextUpper = false;
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Retrieves stored JSON records for any service table.
+     */
+    public static String getServiceData(String serviceName) throws SQLException {
+        String tableName = resolveTableName(serviceName);
+        if ("bills".equalsIgnoreCase(tableName)) {
+            return getAllBills(null, null, null);
+        }
+
+        try (Connection conn = getConnection()) {
+            DatabaseMetaData meta = conn.getMetaData();
+            boolean exists = false;
+            try (ResultSet rs = meta.getTables(null, null, tableName.toUpperCase(), new String[]{"TABLE"})) {
+                if (rs.next()) exists = true;
+            }
+            if (!exists) {
+                try (ResultSet rs = meta.getTables(null, null, tableName.toLowerCase(), new String[]{"TABLE"})) {
+                    if (rs.next()) exists = true;
+                }
+            }
+            if (!exists) {
+                return "[]";
+            }
+
+            String sql = "SELECT raw_json FROM " + tableName + " ORDER BY fetched_at DESC LIMIT 500";
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                StringBuilder jsonArray = new StringBuilder("[");
+                boolean first = true;
+                while (rs.next()) {
+                    if (!first) jsonArray.append(",");
+                    jsonArray.append(rs.getString("raw_json"));
+                    first = false;
+                }
+                jsonArray.append("]");
+                return jsonArray.toString();
+            }
+        }
+    }
+
+    /**
+     * Gets total record count for any service table.
+     */
+    public static long getServiceCount(String serviceName) {
+        String tableName = resolveTableName(serviceName);
+        try (Connection conn = getConnection()) {
+            DatabaseMetaData meta = conn.getMetaData();
+            boolean exists = false;
+            try (ResultSet rs = meta.getTables(null, null, tableName.toUpperCase(), new String[]{"TABLE"})) {
+                if (rs.next()) exists = true;
+            }
+            if (!exists) {
+                try (ResultSet rs = meta.getTables(null, null, tableName.toLowerCase(), new String[]{"TABLE"})) {
+                    if (rs.next()) exists = true;
+                }
+            }
+            if (!exists) {
+                return 0;
+            }
+
+            String sql = "SELECT COUNT(*) FROM " + tableName;
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        } catch (Exception e) {
+            // Table may not exist yet
+        }
+        return 0;
     }
 
     /**

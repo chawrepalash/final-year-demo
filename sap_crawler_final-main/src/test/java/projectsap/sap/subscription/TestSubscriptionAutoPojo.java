@@ -45,7 +45,7 @@ public class TestSubscriptionAutoPojo {
             System.out.println("  ✓ Received " + rawJson.length() + " bytes of JSON.");
 
             // 3. Auto POJO Conversion (Zero manual field mapping!)
-            System.out.println("\n[3/3] Auto-converting live JSON into List<Subscription> POJOs...");
+            System.out.println("\n[3/4] Auto-converting live JSON into List<Subscription> POJOs...");
             long start = System.currentTimeMillis();
             List<Subscription> subs = GenericSapParser.parseList(rawJson, Subscription.class);
             long time = System.currentTimeMillis() - start;
@@ -67,8 +67,21 @@ public class TestSubscriptionAutoPojo {
                 System.out.println();
             }
 
-            System.out.println("==================================================================");
-            System.out.println("  SUCCESS: NEW SERVICE POJO CONVERSION TEST PASSED PERFECTLY!     ");
+            // 4. Auto Database Table Creation & Persistence Verification
+            System.out.println("\n[4/4] Auto-Creating DB Table & Persisting Subscriptions to Database...");
+            projectsap.sap.bill.db.DatabaseManager.testConnection();
+            projectsap.sap.bill.db.DatabaseManager.initDatabase();
+
+            int savedCount = projectsap.sap.bill.db.DatabaseManager.saveServiceData("subscriptions", rawJson);
+            String dbEngine = projectsap.sap.bill.db.DatabaseManager.getDbEngineName();
+            long totalInDb = projectsap.sap.bill.db.DatabaseManager.getServiceCount("subscriptions");
+
+            System.out.println("  ✓ Database Engine:       " + dbEngine);
+            System.out.println("  ✓ Records Stored/Upsert: " + savedCount);
+            System.out.println("  ✓ Total in 'subscriptions' table: " + totalInDb);
+
+            System.out.println("\n==================================================================");
+            System.out.println("  SUCCESS: AUTO POJO CONVERSION & DB PERSISTENCE PASSED 100%!     ");
             System.out.println("==================================================================");
 
         } catch (Exception e) {

@@ -38,9 +38,14 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+:: DB Configuration
+if "%DB_USER%"=="" set "DB_USER=postgres"
+if "%DB_PASS%"=="" set "DB_PASS=flash"
+if "%DB_NAME%"=="" set "DB_NAME=sap_bills"
+
 echo.
 echo [2/2] Running Auto Service Manager for "%SERVICE_NAME%"...
-call "%MVN_CMD%" exec:java -Dexec.mainClass="projectsap.sap.common.SapAutoServiceManager" -Dexec.args="\"%SERVICE_NAME%\" \"%SERVICE_URL%\""
+call "%MVN_CMD%" exec:java -Dexec.mainClass="projectsap.sap.common.SapAutoServiceManager" -Dexec.args="\"%SERVICE_NAME%\" \"%SERVICE_URL%\"" "-Ddb.user=%DB_USER%" "-Ddb.pass=%DB_PASS%" "-Ddb.name=%DB_NAME%"
 
 echo.
 echo ==================================================================

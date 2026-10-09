@@ -18,6 +18,11 @@ if %errorlevel% neq 0 (
     )
 )
 
-call "%MVN_CMD%" test-compile exec:java -Dexec.mainClass="projectsap.sap.subscription.TestSubscriptionAutoPojo" -Dexec.classpathScope="test"
+:: DB Configuration
+if "%DB_USER%"=="" set "DB_USER=postgres"
+if "%DB_PASS%"=="" set "DB_PASS=flash"
+if "%DB_NAME%"=="" set "DB_NAME=sap_bills"
+
+call "%MVN_CMD%" test-compile exec:java -Dexec.mainClass="projectsap.sap.subscription.TestSubscriptionAutoPojo" -Dexec.classpathScope="test" "-Ddb.user=%DB_USER%" "-Ddb.pass=%DB_PASS%" "-Ddb.name=%DB_NAME%"
 
 pause

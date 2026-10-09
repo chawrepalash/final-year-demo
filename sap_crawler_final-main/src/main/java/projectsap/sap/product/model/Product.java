@@ -51,7 +51,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   Product.JSON_PROPERTY_NAMES,
   Product.JSON_PROPERTY_DESCRIPTIONS
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-10-08T23:53:30.537676600+05:30[Asia/Calcutta]", comments = "Generator version: 7.5.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-10-09T22:59:29.848256200+05:30[Asia/Calcutta]", comments = "Generator version: 7.5.0")
 public class Product {
   public static final String JSON_PROPERTY_ID = "id";
   private String id;

@@ -35,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
   ProductMetadata.JSON_PROPERTY_CHANGED_AT,
   ProductMetadata.JSON_PROPERTY_CREATED_AT
 })
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-10-08T23:53:30.537676600+05:30[Asia/Calcutta]", comments = "Generator version: 7.5.0")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-10-09T22:59:29.848256200+05:30[Asia/Calcutta]", comments = "Generator version: 7.5.0")
 public class ProductMetadata {
   public static final String JSON_PROPERTY_CHANGED_AT = "changedAt";
   private String changedAt;

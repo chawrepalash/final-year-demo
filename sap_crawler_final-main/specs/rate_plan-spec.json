@@ -1,0 +1,79 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "SAP Rate_plan Service API",
+    "version" : "1.0.0",
+    "description" : "Auto-generated OpenAPI 3.0 specification for SAP rate_plan"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "Rate_planSnapshotsItemParametersItem" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Rate_planSnapshotsItem" : {
+        "type" : "object",
+        "properties" : {
+          "parameters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Rate_planSnapshotsItemParametersItem"
+            }
+          }
+        }
+      },
+      "Rate_plan" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "ratePlanTemplateId" : {
+            "type" : "string"
+          },
+          "isV1RatePlan" : {
+            "type" : "boolean"
+          },
+          "snapshots" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Rate_planSnapshotsItem"
+            }
+          },
+          "tags" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "createdBy" : {
+            "type" : "string"
+          },
+          "changedBy" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string"
+          },
+          "changedAt" : {
+            "type" : "string"
+          },
+          "withReferenceToPricingScheme" : {
+            "type" : "boolean"
+          }
+        }
+      }
+    }
+  }
+}
