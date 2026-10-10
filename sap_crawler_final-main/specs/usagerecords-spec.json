@@ -1,0 +1,63 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "SAP Usagerecords Service API",
+    "version" : "1.0.0",
+    "description" : "Auto-generated OpenAPI 3.0 specification for SAP usagerecords"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "Usagerecords" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "category" : {
+            "type" : "string"
+          },
+          "metricId" : {
+            "type" : "string"
+          },
+          "usageRatingVariant" : {
+            "type" : "string"
+          },
+          "userTechnicalId" : {
+            "type" : "string"
+          },
+          "startedAt" : {
+            "type" : "string"
+          },
+          "endedAt" : {
+            "type" : "string"
+          },
+          "quantity" : {
+            "type" : "integer"
+          },
+          "subscriptionNumber" : {
+            "type" : "integer"
+          },
+          "subscriptionDocumentId" : {
+            "type" : "string"
+          },
+          "isAssigned" : {
+            "type" : "boolean"
+          },
+          "discarded" : {
+            "type" : "boolean"
+          },
+          "createdAt" : {
+            "type" : "string"
+          },
+          "customReferences" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}

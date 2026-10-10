@@ -35,7 +35,27 @@ public class SapAutoServiceManager {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     public static void main(String[] args) {
-        if (args.length < 2) {
+        String serviceName = null;
+        String urlOrPath = null;
+
+        if (args.length >= 2) {
+            serviceName = args[0].trim().toLowerCase();
+            urlOrPath = args[1].trim();
+        }
+
+        // Check environment variables or system properties if arguments are missing or truncated
+        if (serviceName == null || serviceName.isEmpty()) {
+            serviceName = System.getProperty("service.name", System.getenv("SERVICE_NAME"));
+            if (serviceName != null) serviceName = serviceName.trim().toLowerCase();
+        }
+        if (urlOrPath == null || urlOrPath.isEmpty() || (urlOrPath.endsWith("?paging") && System.getenv("SERVICE_URL") != null)) {
+            String envUrl = System.getProperty("service.url", System.getenv("SERVICE_URL"));
+            if (envUrl != null && !envUrl.trim().isEmpty()) {
+                urlOrPath = envUrl.trim();
+            }
+        }
+
+        if (serviceName == null || urlOrPath == null || urlOrPath.isEmpty()) {
             System.out.println("==================================================================");
             System.out.println("  SAP Automated Service Setup & POJO Generator                   ");
             System.out.println("==================================================================");
@@ -47,15 +67,9 @@ public class SapAutoServiceManager {
             System.out.println();
             System.out.println("  2. With SAP Sandbox API endpoint URL (Auto-infers schema & POJOs):");
             System.out.println("     java SapAutoServiceManager product https://sandbox.api.sap.com/subscriptionbilling/api/product/v1/products");
-            System.out.println();
-            System.out.println("  3. With a local spec file:");
-            System.out.println("     java SapAutoServiceManager order specs/sales-order-spec.json");
             System.out.println("==================================================================");
             return;
         }
-
-        String serviceName = args[0].trim().toLowerCase();
-        String urlOrPath = args[1].trim();
 
         try {
             setupService(serviceName, urlOrPath);

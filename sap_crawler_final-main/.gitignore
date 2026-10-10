@@ -1,6 +1,74 @@
+# ==============================================================================
+# Git Ignore Rules - SAP Subscription Billing Crawler & Analytics Project
+# ==============================================================================
+
+# 1. Maven Build Output & Binary Artifacts
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# 2. Local Database & State Files (H2 Embedded Database)
+data/
+*.db
+*.mv.db
+*.trace.db
+*.lock.db
+
+# 3. IDE & Editor Settings (IntelliJ IDEA, Eclipse, VS Code)
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+bin/
+
+# 4. Operating System Generated Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# 5. Log Files & Runtime Scratch
+*.log
+logs/
+*.tmp
+*.bak
+*.swp
+*~
+scratch/
+test.html
+test_output.pdf
+
+# 6. Archives & Backups
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# 7. Environment Variables & Secret Keys
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# 8. Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# 9. Legacy / Temporary Documentation Scratch Files
 docker-compose.yml
 sources.txt
-target/
-data/
-*.iml
-.idea/
+CODEBASE_DOCUMENTATION.html

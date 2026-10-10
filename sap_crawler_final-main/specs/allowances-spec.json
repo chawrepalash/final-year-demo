@@ -1,0 +1,145 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "SAP Allowances Service API",
+    "version" : "1.0.0",
+    "description" : "Auto-generated OpenAPI 3.0 specification for SAP allowances"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "AllowancesMetaData" : {
+        "type" : "object",
+        "properties" : {
+          "version" : {
+            "type" : "integer"
+          }
+        }
+      },
+      "AllowancesMarket" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "timeZone" : {
+            "type" : "string"
+          },
+          "currency" : {
+            "type" : "string"
+          }
+        }
+      },
+      "AllowancesBalance" : {
+        "type" : "object",
+        "properties" : {
+          "initial" : {
+            "type" : "number"
+          },
+          "remaining" : {
+            "type" : "number"
+          }
+        }
+      },
+      "AllowancesProduct" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "code" : {
+            "type" : "string"
+          }
+        }
+      },
+      "AllowancesAssignmentsItem" : {
+        "type" : "object",
+        "properties" : {
+          "subscriptionId" : {
+            "type" : "string"
+          },
+          "subscriptionDocumentId" : {
+            "type" : "string"
+          },
+          "technicalResourceId" : {
+            "type" : "string"
+          },
+          "technicalResourceType" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Allowances" : {
+        "type" : "object",
+        "properties" : {
+          "metaData" : {
+            "$ref" : "#/components/schemas/AllowancesMetaData"
+          },
+          "allowanceId" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "documentNumber" : {
+            "type" : "integer"
+          },
+          "allowanceDocumentId" : {
+            "type" : "string"
+          },
+          "mainSubscriptionId" : {
+            "type" : "string"
+          },
+          "mainSubscriptionDocumentId" : {
+            "type" : "string"
+          },
+          "allowanceTemplateId" : {
+            "type" : "string"
+          },
+          "customerId" : {
+            "type" : "string"
+          },
+          "market" : {
+            "$ref" : "#/components/schemas/AllowancesMarket"
+          },
+          "currency" : {
+            "type" : "string"
+          },
+          "subscriptionTimeZone" : {
+            "type" : "string"
+          },
+          "validFrom" : {
+            "type" : "string"
+          },
+          "validUntil" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "balance" : {
+            "$ref" : "#/components/schemas/AllowancesBalance"
+          },
+          "unitCode" : {
+            "type" : "string"
+          },
+          "product" : {
+            "$ref" : "#/components/schemas/AllowancesProduct"
+          },
+          "assignments" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AllowancesAssignmentsItem"
+            }
+          },
+          "notificationSettings" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}
